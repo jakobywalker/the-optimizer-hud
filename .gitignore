@@ -1,0 +1,12 @@
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor and temporary files
+.vscode/
+*.log
+*.tmp
+
+# Personal HUD exports
+optimizer-hud-save*.json
