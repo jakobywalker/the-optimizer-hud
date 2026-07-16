@@ -10,3 +10,16 @@ Desktop.ini
 
 # Personal HUD exports
 optimizer-hud-save*.json
+
+# Generated output
+dist/
+
+# Vercel and local environment metadata
+.vercel/
+.env*
+!.env.example
+# Local package manager cache
+.pnpm-cache/
+.pnpm-home/
+.pnpm-user/
+.publish-clone-*/

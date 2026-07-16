@@ -2,36 +2,58 @@
 
 A responsive, game-inspired life dashboard for tracking quests, habits, resources, money, skills, environment, and momentum.
 
+Production: [the-optimizer-hud.vercel.app](https://the-optimizer-hud.vercel.app)
+
 ## What it does
 
-- Tracks daily systems, weekly habits, missions, quest stages, skills, and home-base status.
-- Stores changes locally in your browser; there is no account, server, or analytics.
-- Exports and imports save files so you can back up your HUD or move it between devices.
-- Includes mobile navigation, reduced-motion controls, fullscreen mode, and ultrawide scaling.
+- Tracks daily systems, weekly habits, missions, quest stages, skills, home-base status, and money history.
+- Synchronizes one authenticated HUD across desktop and mobile through Supabase.
+- Updates other signed-in devices in real time while retaining a local offline cache.
+- Exports and imports save files for manual backups.
+- Includes responsive navigation, reduced-motion controls, fullscreen mode, and ultrawide scaling.
 
-## Run locally
+## Local development
 
-Open `index.html` in a modern browser. No install or build step is required.
+Requirements: Node.js 18 or newer.
 
-Run `node scripts/check.mjs` to validate the HTML, local asset references, and inline JavaScript before publishing.
+```powershell
+npm run check
+npm run build
+```
 
-Because saves live in browser storage, data is separate for each browser and device. Use **EXPORT SAVE** and **IMPORT SAVE** inside the HUD to transfer or back up progress.
+The build writes the deployable site to `dist/`. The source `index.html` can also be opened directly for local UI work, but cloud sync requires the Vercel API route and Supabase environment variables.
 
-## Publish with GitHub Pages
+## Cloud sync
 
-1. Create a GitHub repository and push this project to its `main` branch.
-2. Open **Settings > Pages** in the repository.
-3. Under **Build and deployment**, select **GitHub Actions** as the source.
-4. Run the **Deploy HUD to GitHub Pages** workflow, or push another change to `main`.
+The first device to sign into an empty account uploads its current local HUD. Every later device signed into the same account downloads that shared state. Successful changes are stored in Postgres and broadcast to the user's other active sessions.
 
-GitHub will show the public site URL in the deployment summary. Every later push to `main` redeploys the HUD automatically.
+Apply `supabase/schema.sql` to a Supabase project, then configure the Vercel project with:
+
+- `SUPABASE_URL`
+- `SUPABASE_PUBLISHABLE_KEY`
+
+The Vercel Supabase Marketplace integration may supply these automatically. Never commit service-role keys or database connection strings.
+
+## Deployment
+
+The repository is designed for a private GitHub-to-Vercel deployment:
+
+1. Import or connect the GitHub repository in the existing Vercel project.
+2. Keep `main` as the production branch.
+3. Preserve the existing Supabase environment variables in Vercel.
+4. Push to `main`; Vercel runs the build command from `vercel.json`.
+
+GitHub Actions validates and builds every push and pull request. Vercel remains responsible for production hosting.
 
 ## Project structure
 
-- `index.html` contains the complete HUD interface and behavior.
-- `.github/workflows/pages.yml` publishes the static site to GitHub Pages.
-- `scripts/check.mjs` validates the static site before each deployment.
+- `index.html` contains the personalized HUD interface and local behavior.
+- `sync.js` adds authentication, durable cloud saves, offline recovery, and realtime updates.
+- `api/config.mjs` exposes only the public Supabase browser configuration.
+- `supabase/schema.sql` defines the user-scoped database and realtime policies.
+- `scripts/build.mjs` assembles the Vercel output in `dist/`.
+- `scripts/check.mjs` validates the source before deployment.
 
-## Privacy note
+## Privacy
 
-The site code can be public while your entered HUD data remains private on your device. Exported save files can contain personal information, so keep them out of the repository.
+The repository contains personalized default HUD content because it is private. Live account data is protected by Supabase row-level security and is not stored in Git. Exported saves and `.env` files may contain sensitive information and are ignored.
