@@ -10,6 +10,10 @@ if (!/^<!doctype html>/i.test(html.trimStart()) || !/<\/html>\s*$/i.test(html)) 
   throw new Error("index.html is not a complete HTML document");
 }
 
+if (!/\.quick-actions\{[^}]*clip-path:none;[^}]*overflow:visible/.test(html)) {
+  throw new Error("DATA menu container must remain unclipped");
+}
+
 const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
 if (!scripts.length) {
   throw new Error("No inline JavaScript found");
