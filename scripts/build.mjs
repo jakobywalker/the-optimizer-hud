@@ -14,6 +14,10 @@ const output = source.replace(marker, `${cloudScripts}\n${marker}`);
 await rm("dist", { recursive: true, force: true });
 await mkdir("dist", { recursive: true });
 await writeFile("dist/index.html", output, "utf8");
-await copyFile("sync.js", "dist/sync.js");
+await Promise.all([
+  copyFile("sync.js", "dist/sync.js"),
+  copyFile("hud-core.js", "dist/hud-core.js"),
+  copyFile("ai-workflow.js", "dist/ai-workflow.js"),
+]);
 
 console.log("Built synced HUD in dist/.");

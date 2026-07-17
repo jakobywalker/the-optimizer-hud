@@ -1,0 +1,113 @@
+{
+  "format": "optimizer-ai-handoff",
+  "schemaVersion": "1.0",
+  "exportId": "example-export-001",
+  "exportedAt": "2026-07-15T12:30:00.000Z",
+  "previousExportId": null,
+  "previousExportAt": null,
+  "appVersion": "1.1.0",
+  "summary": {
+    "currentChapter": "Level 4",
+    "mainQuest": "Launch a small creative project",
+    "mainQuestProgress": 50,
+    "currentBottleneck": {
+      "title": "THE NEXT ACTION IS NOT SCHEDULED",
+      "detail": "Choose one concrete release task."
+    },
+    "completedSinceLastHandoff": [],
+    "reopenedSinceLastHandoff": [],
+    "newlyAddedSinceLastHandoff": [],
+    "blockedItems": [],
+    "habitSummary": { "completed": 2, "total": 7, "percent": 29 },
+    "dailySummary": { "total": 2, "complete": 1, "incomplete": 1, "percent": 50 },
+    "moneyChange": 0,
+    "majorStatChanges": []
+  },
+  "latestCheckIn": {
+    "id": "check-example-001",
+    "timestamp": "2026-07-15T12:25:00.000Z",
+    "energy": 62,
+    "clarity": 70,
+    "momentum": 55,
+    "alignment": 68,
+    "stress": 30,
+    "sleepHours": 7.5,
+    "physicalCondition": "Rested",
+    "emotionalCondition": "Focused",
+    "note": "Ready for one concentrated work block.",
+    "blockers": "No release date selected.",
+    "significantWins": "Finished the project outline."
+  },
+  "changesSincePreviousHandoff": [],
+  "currentState": {
+    "meta": {
+      "schemaVersion": 2,
+      "appVersion": "1.1.0",
+      "createdAt": "2026-07-01T12:00:00.000Z",
+      "updatedAt": "2026-07-15T12:25:00.000Z",
+      "lastHandoffAt": null,
+      "lastHandoffId": null
+    },
+    "player": { "level": 4, "xp": 300, "xpGoal": 1000 },
+    "top": [
+      { "id": "stat-energy", "name": "Energy", "value": 60 },
+      { "id": "stat-clarity", "name": "Clarity", "value": 70 },
+      { "id": "stat-momentum", "name": "Momentum", "value": 55 },
+      { "id": "stat-alignment", "name": "Alignment", "value": 68 }
+    ],
+    "character": [{ "id": "character-execution", "icon": "E", "name": "Execution", "value": 58 }],
+    "bottleneck": { "id": "bottleneck-main", "title": "THE NEXT ACTION IS NOT SCHEDULED", "sub": "Choose one concrete release task.", "items": [] },
+    "resources": [{ "id": "resource-time", "icon": "T", "name": "Time", "value": 65 }],
+    "money": {
+      "balance": 1000,
+      "range": "30",
+      "history": [{ "id": "opening", "ts": "2026-07-01T12:00:00.000Z", "delta": 0, "balance": 1000, "note": "Opening balance", "type": "set", "undoneAt": null }]
+    },
+    "quest": {
+      "id": "quest-main",
+      "title": "Launch a small creative project",
+      "next": "Schedule the release task",
+      "stages": [
+        { "id": "stage-plan", "name": "Plan", "value": 100 },
+        { "id": "stage-build", "name": "Build", "value": 60 },
+        { "id": "stage-release", "name": "Release", "value": 0 }
+      ]
+    },
+    "daily": {
+      "date": "2026-07-15",
+      "night": [{ "id": "daily-plan", "name": "Plan tomorrow", "completed": true }],
+      "morning": [{ "id": "daily-move", "name": "Move", "completed": false }],
+      "priorities": [{ "id": "priority-release", "name": "Choose release task" }]
+    },
+    "buffs": [{ "id": "buff-focus", "icon": "+", "name": "Clear Focus", "description": "The project scope is small." }],
+    "activeDebuffs": [{ "id": "debuff-unscheduled", "icon": "-", "name": "Unscheduled Work", "description": "No calendar block exists." }],
+    "missions": [{
+      "id": "mission-release",
+      "name": "Prepare Release",
+      "theme": "green",
+      "reward": "Project shipped",
+      "status": "active",
+      "tasks": [
+        { "id": "task-outline", "name": "Finish outline", "completed": true },
+        { "id": "task-schedule", "name": "Schedule release work", "completed": false }
+      ]
+    }],
+    "skills": [{ "id": "skill-planning", "name": "Planning", "value": 64 }],
+    "habits": { "week": "2026-07-13", "items": [{ "id": "habit-walk", "name": "Walk", "values": [true, true, false, false, false, false, false] }] },
+    "base": [{ "id": "base-desk", "icon": "D", "name": "Desk", "value": 75 }],
+    "party": [{ "id": "party-slot-1", "name": "" }],
+    "todayLeverage": "Schedule the release task",
+    "events": [],
+    "checkIns": [],
+    "handoffs": [],
+    "dailyHistory": [],
+    "weeklyHistory": []
+  },
+  "relevantHistory": {
+    "events": [],
+    "checkIns": [],
+    "daily": [],
+    "weekly": [],
+    "money": [{ "id": "opening", "ts": "2026-07-01T12:00:00.000Z", "delta": 0, "balance": 1000, "note": "Opening balance", "type": "set", "undoneAt": null }]
+  }
+}

@@ -256,6 +256,9 @@
 
     currentRevision = Number(remote.revision) || 0;
     if (localIsDirty) {
+      state = core.mergeCloudState(state, core.migrateState(remote.state || {}, defaultState));
+      normalizeState();
+      originalSaveState(false);
       await pushCloudState(true);
       return;
     }
@@ -281,6 +284,14 @@
     if (revision <= currentRevision) return;
 
     if (pushing || hasLocalDirty()) {
+      applyingRemote = true;
+      try {
+        state = core.mergeCloudState(state, core.migrateState(remote.state || {}, defaultState));
+        normalizeState();
+        originalSaveState(false);
+      } finally {
+        applyingRemote = false;
+      }
       currentRevision = revision;
       schedulePush(80);
       return;
@@ -292,7 +303,7 @@
   function applyRemoteState(remote, notify) {
     applyingRemote = true;
     try {
-      state = mergeDeep(clone(defaultState), remote.state || {});
+      state = core.migrateState(remote.state || {}, defaultState);
       normalizeState();
       originalSaveState(false);
       render();
@@ -325,13 +336,18 @@
 
     pushing = true;
     const sequenceAtStart = changeSequence;
-    const snapshot = clone(state);
+    let snapshot = clone(state);
     setSyncStatus("saving", "SYNC: SAVING");
 
     try {
       let result = await writeSnapshot(snapshot, currentRevision);
       if (!result) {
         const latest = await fetchCloudState();
+        const remoteState = core.migrateState(latest?.state || {}, defaultState);
+        snapshot = core.mergeCloudState(snapshot, remoteState);
+        state = core.mergeCloudState(state, remoteState);
+        normalizeState();
+        originalSaveState(false);
         currentRevision = Number(latest?.revision) || 0;
         result = await writeSnapshot(snapshot, currentRevision);
       }

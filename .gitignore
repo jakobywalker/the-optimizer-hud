@@ -10,6 +10,9 @@ Desktop.ini
 
 # Personal HUD exports
 optimizer-hud-save*.json
+optimizer-handoff*.json
+optimizer-handoff*.md
+optimizer-ai-update*.json
 
 # Generated output
 dist/

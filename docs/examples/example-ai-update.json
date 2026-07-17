@@ -1,0 +1,54 @@
+{
+  "format": "optimizer-ai-update",
+  "schemaVersion": "1.0",
+  "updateId": "example-update-001",
+  "generatedAt": "2026-07-15T13:00:00.000Z",
+  "baseExportId": "example-export-001",
+  "title": "Turn clarity into a scheduled release move",
+  "rationale": "Energy and clarity are sufficient for a focused release block, while the current bottleneck is an unscheduled next action.",
+  "operations": [
+    {
+      "id": "operation-energy",
+      "operation": "update",
+      "entityType": "topStat",
+      "entityId": "stat-energy",
+      "path": "value",
+      "previousValue": 60,
+      "value": 62,
+      "reason": "Match the latest observational check-in."
+    },
+    {
+      "id": "operation-complete-task",
+      "operation": "complete",
+      "entityType": "missionTask",
+      "entityId": "task-schedule",
+      "previousValue": false,
+      "value": true,
+      "reason": "Use only after the release work block has actually been scheduled."
+    },
+    {
+      "id": "operation-add-task",
+      "operation": "add",
+      "entityType": "missionTask",
+      "entityId": "mission-release",
+      "value": {
+        "name": "Complete the release work block",
+        "completed": false
+      },
+      "reason": "Create the next concrete action after scheduling."
+    },
+    {
+      "id": "operation-money",
+      "operation": "add",
+      "entityType": "money",
+      "entityId": "money",
+      "previousValue": 1000,
+      "value": {
+        "id": "ledger-example-income",
+        "delta": 50,
+        "note": "Example project income"
+      },
+      "reason": "Demonstrates an additive money entry; omit unless the income really occurred."
+    }
+  ]
+}
