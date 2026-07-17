@@ -4,13 +4,13 @@ The Optimizer HUD keeps one versioned state object in local storage and, when si
 
 ## State schema
 
-Schema version 3 uses this metadata:
+Schema version 4 uses this metadata:
 
 ```json
 {
   "meta": {
-    "schemaVersion": 3,
-    "appVersion": "1.2.0",
+    "schemaVersion": 4,
+    "appVersion": "1.3.0",
     "createdAt": "2026-07-15T12:00:00.000Z",
     "updatedAt": "2026-07-15T12:00:00.000Z",
     "lastHandoffAt": null,
@@ -105,7 +105,7 @@ An update file uses:
 }
 ```
 
-Supported operations are `add`, `update`, `complete`, `reopen`, `archive`, and `remove`. Supported entity types are `topStat`, `characterStat`, `mainQuest`, `questStage`, `mission`, `missionTask`, `bottleneck`, `buff`, `debuff`, `resource`, `skill`, `homeBase`, `party`, `dailyAction`, `dailyPriority`, `habit`, `note`, `money`, `progression`, and `missionReward`.
+Supported operations are `add`, `update`, `complete`, `reopen`, `archive`, and `remove`. Engagement-aware entity types include `bottleneck`, `habit`, `habitReward`, and `bottleneckReward` in addition to the existing stat, quest, mission, daily, resource, money, progression, and note targets.
 
 ### Operation rules
 
@@ -128,6 +128,45 @@ See [example-ai-update.json](examples/example-ai-update.json).
 Each handoff includes `progression.player`, all stable progression tracks, missions completed since the prior handoff, reward transactions, level-ups, achievements, source mission IDs, and timestamps. The same information is present in authoritative `currentState` and relevant history.
 
 A progression update must be explicit and additive. An AI must not set `level` or `xp` through a generic stat operation. Mission rewards can be edited before or after completion, but an already-applied transaction is historical and immutable. Replaying or importing a completed mission never applies its transaction again.
+## Habit progression and bottleneck resolution
+
+Each handoff has a top-level `engagement` summary and the same summary under `summary.engagement`. It includes:
+
+- Standard habit IDs and structured reward definitions
+- Habit reward transactions since the previous handoff, including `sourceDate`
+- Daily-system clear transactions
+- Bottleneck resolution transactions and resolved bottleneck snapshots
+- Resolution notes, timestamps, reward summaries, level-ups, and achievement links
+- `rewardClaims` in relevant history for import/cloud claim auditing
+
+The readable report adds `Habit Progression` and `Bottlenecks Removed` sections.
+
+Approved updates may:
+
+- Update a known habit reward with `entityType: "habitReward"`
+- Complete or reopen `habit` with `path: "values.0"` through `values.6`
+- Add an object-based `bottleneck`
+- Edit fields on an active bottleneck
+- Update an active bottleneck reward with `entityType: "bottleneckReward"`
+- Complete a bottleneck with an optional `value.resolutionNote`
+
+Example resolution operation:
+
+```json
+{
+  "id": "resolve-walking-pad",
+  "operation": "complete",
+  "entityType": "bottleneck",
+  "entityId": "stable-bottleneck-id",
+  "previousValue": "active",
+  "value": {
+    "resolutionNote": "Walking pad is deployed and ready without setup."
+  },
+  "reason": "The recurring movement friction is gone."
+}
+```
+
+Habit and bottleneck completions use the same canonical transaction engine as direct UI actions. AI application does not play sounds, sparks, or cinematics. Resolved bottleneck history and already-applied transactions cannot be edited or reclaimed.
 ## Instructions for another AI
 
 1. Read the handoff JSON, treating `currentState` as authoritative.
@@ -156,10 +195,12 @@ Realtime sync retains the existing optimistic revision architecture. On a remote
 - Handoffs by export ID
 - Daily and weekly histories by history ID
 - Money entries by ledger ID, preserving undo markers
-- Reward transactions by transaction ID and mission/reward-version idempotency key
+- Reward transactions by transaction ID and canonical mission, habit-date, daily-clear, or bottleneck idempotency key
+- Reward claim markers by idempotency key
+- Bottleneck objects by stable ID, with canonical resolution transactions forcing resolved state
 - Level-up and achievement records by record ID, filtered to canonical transactions
 
-Merged histories are sorted chronologically and deduplicated. No Supabase schema or Vercel environment change is required for schema version 3 because the complete state remains in the existing JSONB snapshot. Progression is rebuilt from its baseline and canonical transactions after a conflict merge.
+Merged histories are sorted chronologically and deduplicated. No Supabase schema or Vercel environment change is required for schema version 4 because the complete state remains in the existing JSONB snapshot. Progression is rebuilt from its baseline and canonical transactions after a conflict merge.
 
 ## Validation
 

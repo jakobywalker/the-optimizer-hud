@@ -20,7 +20,9 @@ await Promise.all([
   copyFile("ai-workflow.js", "dist/ai-workflow.js"),
   copyFile("progression-engine.js", "dist/progression-engine.js"),
   copyFile("audio-manager.js", "dist/audio-manager.js"),
+  copyFile("engagement-engine.js", "dist/engagement-engine.js"),
   copyFile("progression-ui.js", "dist/progression-ui.js"),
+  copyFile("engagement-ui.js", "dist/engagement-ui.js"),
   cp("assets", "dist/assets", { recursive: true }),
 ]);
 

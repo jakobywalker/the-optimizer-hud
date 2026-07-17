@@ -1,139 +1,125 @@
-# Progression Engine v1
+# Progression and Engagement Engine
 
-## State shape
+## Schema v4
 
-Schema v3 keeps the player track at `state.player` and category tracks in `state.progression.tracks`:
+App version `1.3.0` uses state schema `4`. Migration is idempotent and runs for local storage, imported saves, cloud hydration, realtime snapshots, and conflict snapshots. It preserves personalized values, mission history, checked habits, custom habits, and legacy bottleneck text.
+
+Schema v4 adds:
+
+- `state.engagement.version`
+- Seven standard habits with stable IDs, structured rewards, and `rewardVersion`
+- `state.rewardClaims` for trusted legacy/import claim markers
+- Object-based bottlenecks with stable IDs and resolution history
+- Habit, daily-clear, and bottleneck reward transaction source snapshots
+- `bottleneck-removed` achievement records
+- Audio category settings: `uiVolume`, `progressVolume`, and `cinematicVolume`
+
+Checked legacy habit cells receive a claim marker without a fabricated XP transaction. This prevents retroactive rewards and uncheck/recheck farming while preserving visible history.
+
+## XP model
+
+The player track is `state.player`. Core-stat, attribute, and skill tracks are in `state.progression.tracks`. Every track has `level`, `xp`, and `xpRequired: 100`. XP carries across level boundaries and can grant multiple levels.
+
+`state.progression.baseline` is the immutable rebuild anchor. Current progression equals the baseline plus canonical applied reward transactions. All rewards use `createRewardTransaction()` or `createManualAdjustment()`.
+
+## Habit model
+
+| ID | Label | Structured reward |
+| --- | --- | --- |
+| `gym-train` | Gym / Train | +5 Fitness, +2 Energy |
+| `steps-8k` | 8k Steps | +3 Energy, +3 Fitness |
+| `sleep-seven-hours` | Sleep 7+ Hours | +5 Energy, +3 Capacity |
+| `main-quest-work` | Main Quest Work | +5 Momentum, +3 Alignment |
+| `no-social-media-am` | No Social Media AM | +5 Clarity, +2 Alignment |
+| `content-made` | Content Made | +5 Music Creation, +3 Momentum |
+| `content-released` | Content Released | +6 Leverage, +4 Music Creation, +2 Momentum |
+
+Custom habits remain after the standard seven and retain their values and structured rewards. A first unchecked-to-checked transition uses:
+
+```text
+habit:<habit-id>:<YYYY-MM-DD>:reward-v<reward-version>
+```
+
+The date comes from `habits.week` plus the selected column, not the current clock. A transaction and a `rewardClaims` marker make the claim durable. Refresh, import, replay, uncheck/recheck, and duplicate cloud writes cannot reapply it.
+
+## Habit pitch language
+
+The completed count for that date selects the note, regardless of which habit was checked:
+
+```text
+1: 311.13 Hz
+2: 349.23 Hz
+3: 392.00 Hz
+4: 466.16 Hz
+5: 523.25 Hz
+6: 622.25 Hz
+7: 783.99 Hz
+```
+
+This is an ascending E-flat language. Out-of-order completion remains consistent because the algorithm counts completed standard habits after the transition. A numbered custom file wins first; otherwise `habit-step.wav` is pitch-shifted; otherwise synthesis uses the exact frequency. Unchecking uses `toggleOff` and never reverses a claim.
+
+## Daily clear
+
+Completing all seven standard habits for one date creates `habit-day-clear:<YYYY-MM-DD>:reward-v1`. The claim grants +10 Player XP, +5 Momentum XP, and +5 Alignment XP. It is separate from the seventh habit transaction and is presented through the shared queue. Reopening and rechecking cannot reclaim it.
+
+## Bottleneck model
 
 ```json
 {
-  "meta": {
-    "schemaVersion": 3,
-    "appVersion": "1.2.0"
-  },
-  "player": {
-    "id": "player",
-    "name": "The Optimizer",
-    "type": "player",
-    "level": 27,
-    "xp": 57,
-    "xpRequired": 100
-  },
-  "progression": {
-    "version": 1,
-    "tracks": {
-      "alignment": {
-        "id": "alignment",
-        "name": "Alignment",
-        "type": "coreStat",
-        "level": 1,
-        "xp": 44,
-        "xpRequired": 100
-      }
-    },
-    "baseline": {
-      "player": {},
-      "tracks": {}
-    }
-  },
-  "rewardTransactions": [],
-  "levelUps": [],
-  "earnedAchievements": [],
-  "settings": {
-    "audio": {
-      "enabled": true,
-      "volume": 0.22
-    }
+  "id": "stable-id",
+  "name": "Walking pad deployment",
+  "description": "Movement setup creates recurring friction.",
+  "severity": "high",
+  "status": "active",
+  "createdAt": "2026-07-17T12:00:00.000Z",
+  "resolvedAt": null,
+  "resolutionNote": "",
+  "rewardVersion": 1,
+  "rewardClaimedAt": null,
+  "rewardTransactionId": null,
+  "rewards": {
+    "playerXp": 40,
+    "progression": [
+      { "targetType": "coreStat", "targetId": "alignment", "amount": 35 },
+      { "targetType": "coreStat", "targetId": "clarity", "amount": 25 },
+      { "targetType": "coreStat", "targetId": "momentum", "amount": 20 }
+    ],
+    "achievements": [{ "achievementId": "bottleneck-removed" }]
   }
 }
 ```
 
-The baseline is an immutable migration and conflict-rebuild anchor. Current player and track values are baseline plus all canonical applied reward transactions.
+Resolution uses `bottleneck:<id>:resolve:reward-v1`. It archives the object as immutable history, stores the resolution note and transaction link, grants the reward once, and records the repeatable `bottleneck-removed` achievement. Replay reads the stored transaction without mutation.
 
-## XP calculation
+The compact five-stage presentation covers pressure break, resolution source, rewards, level results, and permanent record/achievement. It shares the mission presentation queue.
 
-`applyProgressionXp(track, amount)` accepts a non-negative integer up to one billion. It normalizes missing fields, applies 100 XP levels, carries overflow, supports multiple levels, mutates the target track, and returns previous/final values, levels gained, and bounded checkpoints.
+## Mission integration
 
-Negative, non-finite, and oversized values are rejected. Zero is a valid no-op.
+Mission claims remain claim-once transactions from Progression Engine v1. The transaction is saved before the cinematic. `rewardReveal` now accompanies reward rows and `xpGain` accompanies progression application.
 
-## Mission rewards and idempotency
+## Cloud and import reconciliation
 
-Missions include stable mission/task IDs, classification, impact, structured rewards, `completedAt`, `rewardClaimedAt`, `rewardVersion`, and `completionCount`.
+Both snapshots migrate before merge. Transactions are deduplicated by ID and then reduced to one canonical applied record per `idempotencyKey`. Progression is rebuilt from the baseline. Level-ups and achievements tied to discarded duplicate transactions are removed.
 
-A mission claim transaction uses:
-
-```json
-{
-  "id": "transaction-id",
-  "idempotencyKey": "mission-id:reward-v1",
-  "type": "mission-completion",
-  "sourceType": "mission",
-  "sourceId": "mission-id",
-  "sourceName": "Restore Home Base",
-  "rewardVersion": 1,
-  "createdAt": "2026-07-17T13:00:00.000Z",
-  "rewards": {},
-  "mission": {},
-  "before": {
-    "player": {},
-    "tracks": {}
-  },
-  "after": {
-    "player": {},
-    "tracks": {}
-  },
-  "results": [],
-  "levelUps": [],
-  "achievementIds": [],
-  "diagnostics": [],
-  "status": "applied"
-}
-```
-
-The idempotency key is checked before mutation. The transaction and progression changes are created in one guarded operation. Any calculation failure restores the original state. UI presentation begins only after `saveState()` has persisted the applied transaction.
-
-Invalid reward targets are skipped, logged as warnings, and included in transaction diagnostics while valid targets continue.
-
-## Achievements and level-ups
-
-Achievement definitions are data-driven. `mission-complete` is repeatable, so each different mission completion receives an earned instance. Earned records and level-up badges include transaction ID, target/source IDs, timestamps, and before/after levels.
-
-Replay reads the original transaction and creates no records.
-
-## Cloud conflict strategy
-
-Both snapshots are migrated before merge. Reward transactions are merged by transaction ID and then reduced to one canonical applied record per idempotency key. Level-up and achievement records linked to discarded duplicate transactions are removed. Progression is rebuilt from baseline plus canonical transactions, which safely combines rewards from different missions while applying a same-mission claim once.
-
-Mission completion metadata is reconciled with the canonical transaction. Editable mission content follows the snapshot with the newer state timestamp. Other non-history fields retain the existing last-write-wins behavior.
+`rewardClaims` are unioned by key. Bottlenecks merge by stable ID. A canonical bottleneck-resolution transaction forces resolved state and its canonical transaction link. Import migration marks already-checked legacy cells without XP. Import, remote sync, and AI application do not trigger local sparks, cinematics, or interaction sounds.
 
 ## AI operations
 
-Controlled positive XP uses:
+Supported engagement operations include:
 
-```json
-{
-  "id": "op-xp",
-  "operation": "add",
-  "entityType": "progression",
-  "entityId": "alignment",
-  "previousValue": {
-    "id": "alignment",
-    "name": "Alignment",
-    "type": "coreStat",
-    "level": 1,
-    "xp": 44,
-    "xpRequired": 100
-  },
-  "value": {
-    "amount": 15
-  }
-}
-```
+- `update` + `habitReward` for a known habit
+- `update` + `bottleneckReward` for an active bottleneck
+- `add` or `update` + `bottleneck`
+- `complete` + `bottleneck` with an optional `resolutionNote`
+- `complete` or `reopen` + `habit` with `path: "values.0"` through `values.6`
 
-Structured mission reward replacement uses `operation: "update"`, `entityType: "missionReward"`, the mission ID, the previous rewards object, and a complete structured rewards value. Claimed transactions are immutable and are not retroactively changed.
+Resolved bottlenecks and claimed transaction history are immutable. AI operations use the same canonical transaction paths as direct interaction.
 
 ## Extending progression
 
-Future gym, challenge, streak, or AI-review systems should call `createManualAdjustment()` with a globally unique source/idempotency key. They should not mutate current track levels directly. The shared transaction path provides overflow, level-ups, event reporting, cloud merge safety, and handoff visibility.
+Future gym, challenge, streak, or AI-review systems should define a stable source ID, reward version, source snapshot, and globally unique idempotency key, then call `createRewardTransaction()`. New sounds should be registered in `SOUND_CATALOG`, assigned a category, given a short cooldown/duration, mapped to an optional custom file, and provided with an original synthesized fallback.
+
+Do not add casual direct XP mutation or reuse another system's claim key.
 
 ## Validation
 
@@ -142,4 +128,4 @@ npm.cmd test
 npm.cmd run check
 ```
 
-The progression suite covers arithmetic, overflow, large values, migration, structured defaults, final-task claims, refresh/import/replay safety, duplicate cloud claims, different missions, AI operations, presentation queue ordering, achievement deduplication, and audio fallback.
+The suites cover schema migration, custom habit preservation, exact rewards, daily clears, E-flat steps, cloud deduplication, bottleneck resolution/replay/immutability, AI compatibility, audio tiers/fallbacks, queue ordering, mission progression, production output, and legacy behavior.

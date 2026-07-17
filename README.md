@@ -8,10 +8,10 @@ Production: [the-optimizer-hud.vercel.app](https://the-optimizer-hud.vercel.app)
 
 - Tracks daily systems, weekly habits, missions, quest stages, skills, home-base status, and an immutable money ledger.
 - Synchronizes one authenticated HUD across desktop and mobile through Supabase realtime.
-- Migrates older personalized saves to schema v3 without resetting progress.
-- Turns final-task mission completion into a claim-once progression transaction and cinematic summary.
+- Migrates older personalized saves to schema v4 without resetting progress.
+- Turns mission, habit, daily-clear, and bottleneck completion into claim-once progression transactions and queued summaries.
 - Levels the player, core stats, attributes, and skills with a fixed 100 XP rule and overflow.
-- Stores level-up records, repeatable mission achievements, completion events, and replayable reward summaries.
+- Stores level-ups, repeatable mission/bottleneck achievements, completion events, claim markers, and replayable reward summaries.
 - Exports authoritative AI handoffs and validates deliberate AI progression or mission-reward updates.
 - Preserves the full-save JSON workflow, responsive navigation, reduced-motion controls, fullscreen mode, and ultrawide scaling.
 
@@ -30,7 +30,7 @@ npm.cmd run build
 
 Every progression track has a stable ID, name, type, level, current XP, and `xpRequired: 100`. Reaching 100 XP increments the level, subtracts 100 XP, and carries all overflow. A single reward can grant multiple levels.
 
-The player track lives at `state.player`. Category tracks live in `state.progression.tracks`. `state.progression.baseline` is the immutable migration/rebuild anchor used to replay merged transactions safely. Existing percentage values seed Level 1 XP the first time schema v3 migrates a save.
+The player track lives at `state.player`. Category tracks live in `state.progression.tracks`. `state.progression.baseline` is the immutable migration/rebuild anchor used to replay merged transactions safely. Existing percentage values seed Level 1 XP the first time schema v4 migrates a save.
 
 Mission rewards are structured:
 
@@ -72,28 +72,34 @@ The sequence:
 - Restores focus after completion and never blocks saved progression if presentation or audio fails.
 - Permanently updates player, stat, attribute, and skill level labels on the HUD.
 
-## Audio
+## Habits and daily clear
 
-`audio-manager.js` first tries optional WAV overrides, then silently uses original Web Audio synthesis. Sound enabled state and conservative master volume are stored in `state.settings.audio` and sync with the HUD.
+Schema v4 installs seven stable standard habits while preserving custom habits and all checked history: Gym / Train, 8k Steps, Sleep 7+ Hours, Main Quest Work, No Social Media AM, Content Made, and Content Released. Each first completion for a calendar date grants its configured structured progression reward once.
 
-Custom paths:
+Habit sound pitch comes from the completed count for that date, not row order. The E-flat frequencies are `311.13`, `349.23`, `392`, `466.16`, `523.25`, `622.25`, and `783.99` Hz. This stays ascending when habits are completed out of order.
 
-- `assets/audio/mission-complete.wav`
-- `assets/audio/reward-reveal.wav`
-- `assets/audio/xp-gain.wav`
-- `assets/audio/level-up.wav`
-- `assets/audio/player-level-up.wav`
-- `assets/audio/achievement.wav`
-- `assets/audio/confirm.wav`
-- `assets/audio/error.wav`
+Completing all seven grants a separate claim-once daily-system clear: +10 Player XP, +5 Momentum XP, and +5 Alignment XP. Direct local completions show a small spark and XP label; reduced-motion mode uses a glow. Import, AI, and cloud events do not create local celebration feedback.
 
-The production build copies `assets/` into `dist/assets/`. Missing files, blocked audio contexts, and playback failures do not interrupt reward application.
+## Bottleneck resolution
 
+Legacy bottleneck arrays migrate into stable objects with name, description, severity, status, timestamps, resolution note, reward version, transaction link, and structured rewards. Users can add, edit, resolve, review history, and replay resolved summaries.
+
+The default resolution grants +40 Player XP, +35 Alignment XP, +25 Clarity XP, +20 Momentum XP, and the repeatable Bottleneck Removed achievement. Resolution archives immutable history and enters a compact five-stage presentation through the same serialized queue used by missions.
+
+## Audio Manager v2
+
+The complete event catalog is: `missionComplete`, `rewardReveal`, `xpGain`, `levelUp`, `playerLevelUp`, `achievement`, `buttonConfirm`, `error`, `uiClick`, `toggleOn`, `toggleOff`, `panelOpen`, `panelClose`, `taskComplete`, `taskReopen`, `dailyComplete`, `habitStep`, `habitDayComplete`, `questAdvance`, `bottleneckResolved`, and `bottleneckReward`.
+
+Sounds are tiered into UI, progress, and cinematic categories. Synchronized settings include `enabled`, master `volume`, `uiVolume`, `progressVolume`, and `cinematicVolume`. Sound tests are available in DATA > SOUND SETTINGS.
+
+`audio-manager.js` tries optional WAV overrides, then silently uses original Web Audio synthesis. Unknown names return false; missing files, blocked contexts, and playback failures never interrupt state changes. Cooldowns, one-interaction deduplication, and bounded polyphony avoid audio fatigue. Mission reward rows now use `rewardReveal` and progression animation uses `xpGain`.
+
+See [assets/audio/README.md](assets/audio/README.md) for every custom path, numbered habit-note priority, and extension guidance.
 ## AI workflow
 
 Open `DATA` in the HUD to export a JSON handoff or readable report, record a condition check-in, preview an AI update, and undo the latest imported update.
 
-The handoff includes current player and track progression, mission completions, reward transactions, level-ups, achievements, source mission IDs, and timestamps since the previous handoff. AI updates can add positive XP through a `progression` operation and replace structured rewards through a `missionReward` operation. Both remain previewed and explicitly approved.
+The handoff includes player/track progression, mission completions, dated habit claims, daily clears, bottlenecks removed with resolution notes, reward transactions, level-ups, achievements, source IDs, and timestamps since the previous handoff. AI updates can add positive XP, replace mission/habit/active-bottleneck rewards, add/edit/resolve bottlenecks, and complete/reopen dated habit cells. Every operation remains previewed and explicitly approved.
 
 See [docs/AI-WORKFLOW.md](docs/AI-WORKFLOW.md) and the privacy-safe examples in [docs/examples](docs/examples).
 
@@ -101,7 +107,7 @@ See [docs/AI-WORKFLOW.md](docs/AI-WORKFLOW.md) and the privacy-safe examples in 
 
 The first device to sign into an empty account uploads its current local HUD. Later devices on the same account download that shared state. Successful changes are stored in the existing Postgres JSONB row and broadcast to other active sessions.
 
-On revision conflicts, snapshots are migrated before merge. Append-only histories are deduplicated by stable IDs. Reward transactions are additionally deduplicated by idempotency key, then progression is rebuilt from the baseline and canonical applied transaction list. Level-ups and achievements tied to discarded duplicate claims are removed. Different mission rewards from both devices are retained.
+On revision conflicts, snapshots are migrated before merge. Append-only histories are deduplicated by stable IDs. Reward transactions are additionally deduplicated by idempotency key, then progression is rebuilt from the baseline and canonical applied transaction list. Level-ups and achievements tied to discarded duplicate claims are removed. Different mission, habit-date, daily-clear, and bottleneck rewards are retained. Habit claim markers are unioned by idempotency key, and a canonical bottleneck transaction forces resolved history.
 
 Mission completion metadata preserves the canonical transaction and earliest valid claim timestamp. Other editable scalar fields and non-history collections still use the existing newest-snapshot or optimistic local-write behavior, so simultaneous edits to the same ordinary field remain last-write-wins.
 
@@ -116,7 +122,7 @@ No schema or environment-variable change is required for progression v1.
 
 `OptimizerHudCore.migrateState()` runs for local storage, full-save imports, cloud hydration, realtime snapshots, and conflict snapshots. It is idempotent and tolerant of missing optional fields.
 
-Schema v3:
+Schema v4:
 
 - Preserves existing player level and converts legacy player XP/goal into progress toward the next 100 XP level.
 - Converts old percentage stats to Level 1 track XP.
@@ -124,6 +130,9 @@ Schema v3:
 - Adds structured default rewards only when a newer structured reward is absent.
 - Normalizes and deduplicates reward transactions, level-ups, and achievements without reapplying history.
 - Treats an old imported mission that is already complete as previously claimed, preventing retroactive XP.
+- Adds the seven standard habits while preserving custom habits and checked history.
+- Marks checked legacy habit cells without fabricating XP transactions.
+- Converts bottleneck arrays into stable active objects and preserves resolved history.
 
 Legacy completed missions without a recorded transaction cannot replay a historical summary because no trustworthy before/after reward record exists.
 
@@ -135,12 +144,14 @@ The private GitHub repository is connected to Vercel with `main` as the producti
 
 - `index.html` contains the personalized HUD, local persistence, mission task edge detection, rendering, and responsive behavior.
 - `progression-engine.js` contains migration, XP math, transactions, achievements, idempotency, replay data, queueing, AI summaries, and cloud reconciliation.
-- `progression-ui.js` contains the cinematic sequence, mission reward editor, replay controls, achievements view, and audio settings.
+- `progression-ui.js` contains the shared presentation queue, mission cinematic, reward editor, replay controls, achievements, and tiered audio settings.
+- `engagement-engine.js` contains habits, daily clears, bottleneck migration/resolution, claim markers, AI summaries, and cloud reconciliation.
+- `engagement-ui.js` contains interaction sound routing, sparks/XP indicators, compact presentations, and bottleneck management/history.
 - `audio-manager.js` contains custom-file mapping and synthesized sound fallbacks.
 - `hud-core.js` contains shared state migration, events, rollovers, handoffs, AI patches, rollback, and cloud-history merging.
 - `ai-workflow.js` contains check-in, handoff export, update preview, approval, and rollback UI.
 - `sync.js` adds authentication, durable cloud saves, offline recovery, realtime updates, and optimistic revisions.
-- `scripts/test-hud.mjs` and `scripts/test-progression.mjs` provide lightweight behavior coverage.
+- `scripts/test-hud.mjs`, `scripts/test-progression.mjs`, and `scripts/test-engagement.mjs` provide lightweight behavior coverage.
 - `scripts/build.mjs`, `scripts/check.mjs`, and `scripts/check-build.mjs` validate and assemble production output.
 - `supabase/schema.sql` defines the existing user-scoped JSONB state and realtime policies.
 

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import "../progression-engine.js";
+import "../engagement-engine.js";
 import "../hud-core.js";
 
 const core = globalThis.OptimizerHudCore;
@@ -64,13 +65,13 @@ function updatePatch(state, overrides = {}) {
 
 test("migrates legacy state without losing personalized values", () => {
   const state = migrated();
-  assert.equal(state.meta.schemaVersion, 3);
-  assert.equal(state.meta.appVersion, "1.2.0");
+  assert.equal(state.meta.schemaVersion, 4);
+  assert.equal(state.meta.appVersion, "1.3.0");
   assert.equal(state.missions[0].tasks[0].completed, true);
   assert.equal(state.quest.stages[1].value, 40);
   assert.equal(state.money.balance, 1250);
   assert.equal(state.todayLeverage, "Finish the important work");
-  assert.equal(state.habits.items[0].values[2], true);
+  assert.equal(state.habits.items.find(item => item.name === "Walk").values[2], true);
 });
 
 test("generates stable IDs once and preserves them on later migrations", () => {
@@ -112,7 +113,7 @@ test("archives weekly habits before resetting", () => {
   const state = migrated("weekly");
   const changed = core.archiveRollovers(state, { today: state.daily.date, week: "2026-07-20" }, { now: "2026-07-20T12:00:00.000Z", idFactory: ids("week-event") });
   assert.equal(changed, true);
-  assert.equal(state.weeklyHistory[0].habits[0].completed, 2);
+  assert.equal(state.weeklyHistory[0].habits.find(item => item.name === "Walk").completed, 2);
   assert.ok(state.habits.items.every(item => item.values.every(value => !value)));
 });
 
@@ -121,7 +122,7 @@ test("builds a first handoff with no previous export", () => {
   const handoff = core.buildHandoff(state, { exportId: "export-1", exportedAt: "2026-07-15T12:30:00.000Z" });
   assert.equal(handoff.format, "optimizer-ai-handoff");
   assert.equal(handoff.previousExportId, null);
-  assert.equal(handoff.currentState.meta.schemaVersion, 3);
+  assert.equal(handoff.currentState.meta.schemaVersion, 4);
   assert.equal(Object.hasOwn(handoff.currentState, "rollback"), false);
 });
 

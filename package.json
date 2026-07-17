@@ -1,14 +1,14 @@
 {
   "name": "the-optimizer-hud",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": true,
   "type": "module",
   "scripts": {
     "check:source": "node scripts/check.mjs",
-    "test": "node scripts/test-hud.mjs && node scripts/test-progression.mjs",
+    "test": "node scripts/test-hud.mjs && node scripts/test-progression.mjs && node scripts/test-engagement.mjs",
     "build": "node scripts/build.mjs",
     "check:build": "node scripts/check-build.mjs",
-    "check": "node scripts/check.mjs && node scripts/test-hud.mjs && node scripts/test-progression.mjs && node scripts/build.mjs && node scripts/check-build.mjs"
+    "check": "node scripts/check.mjs && node scripts/test-hud.mjs && node scripts/test-progression.mjs && node scripts/test-engagement.mjs && node scripts/build.mjs && node scripts/check-build.mjs"
   },
   "engines": {
     "node": ">=18"
