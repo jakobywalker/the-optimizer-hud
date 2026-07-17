@@ -226,7 +226,7 @@ body.ultrawide-mode .fit-indicator{border-color:#3fcaf7;background:#0d3b50;color
   <section class="player-card">
     <div class="player-id"><div class="avatar">J</div><div><b>THE OPTIMIZER</b><span>Jakoby · Narrative Creator / Leverage Hunter</span></div></div>
     <div class="level-box"><div class="level-line"><span>PLAYER LVL <b id="playerLevel">27</b></span><span><b id="xpCurrent">4,250</b> / <b id="xpGoal">7,500</b> XP</span></div><div class="xp"><i id="xpBar"></i></div></div>
-    <div class="quick-actions"><button class="btn primary" id="editBtn">EDIT HUD</button><details class="data-menu" id="dataMenu"><summary class="btn">DATA</summary><div class="data-menu-popover"><button class="btn" id="exportBtn">EXPORT SAVE</button><button class="btn" id="importBtn">IMPORT SAVE</button><button class="btn primary wide" id="aiHandoffBtn">AI HANDOFF</button><button class="btn wide" id="readableReportBtn">EXPORT READABLE REPORT</button><button class="btn wide" id="checkInBtn">CONDITION CHECK-IN</button><button class="btn wide" id="aiUpdateBtn">IMPORT AI UPDATE</button><button class="btn danger wide" id="undoAiBtn">UNDO LAST AI UPDATE</button></div></details><button class="btn" id="motionBtn" title="Toggle subtle HUD ambience">MOTION: ON</button><button class="btn" id="fitBtn" title="Automatically fit the entire HUD to an ultrawide screen">ULTRAWIDE: AUTO</button><button class="btn ghost" id="fullscreenBtn">FULLSCREEN + FIT</button><input type="file" id="importFile" accept="application/json" hidden /><input type="file" id="aiUpdateFile" accept="application/json" hidden /></div>
+    <div class="quick-actions"><button class="btn gym-launch" id="gymModeBtn" type="button"><b>GYM MODE</b><small>ENTER TRAINING</small></button><button class="btn primary" id="editBtn">EDIT HUD</button><details class="data-menu" id="dataMenu"><summary class="btn">DATA</summary><div class="data-menu-popover"><button class="btn" id="exportBtn">EXPORT SAVE</button><button class="btn" id="importBtn">IMPORT SAVE</button><button class="btn primary wide" id="aiHandoffBtn">AI HANDOFF</button><button class="btn wide" id="readableReportBtn">EXPORT READABLE REPORT</button><button class="btn wide" id="checkInBtn">CONDITION CHECK-IN</button><button class="btn wide" id="aiUpdateBtn">IMPORT AI UPDATE</button><button class="btn danger wide" id="undoAiBtn">UNDO LAST AI UPDATE</button></div></details><button class="btn" id="motionBtn" title="Toggle subtle HUD ambience">MOTION: ON</button><button class="btn" id="fitBtn" title="Automatically fit the entire HUD to an ultrawide screen">ULTRAWIDE: AUTO</button><button class="btn ghost" id="fullscreenBtn">FULLSCREEN + FIT</button><input type="file" id="importFile" accept="application/json" hidden /><input type="file" id="aiUpdateFile" accept="application/json" hidden /></div>
   </section>
 
   <main class="dashboard">
@@ -316,6 +316,7 @@ body.ultrawide-mode .fit-indicator{border-color:#3fcaf7;background:#0d3b50;color
 <script src="progression-engine.js"></script>
 <script src="audio-manager.js"></script>
 <script src="engagement-engine.js"></script>
+<script src="gym-engine.js"></script>
 <script src="hud-core.js"></script>
 <script>
 const storage=(()=>{
@@ -673,5 +674,6 @@ syncMobileMode();
 <script src="ai-workflow.js"></script>
 <script src="progression-ui.js"></script>
 <script src="engagement-ui.js"></script>
+<script src="gym-ui.js"></script>
 </body>
 </html>

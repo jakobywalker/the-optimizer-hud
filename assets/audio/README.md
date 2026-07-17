@@ -39,6 +39,32 @@ UI and progress interactions:
 - `assets/audio/bottleneck-resolved.wav`
 - `assets/audio/bottleneck-reward.wav`
 
+Gym Mode:
+
+- assets/audio/gym-mode-enter.wav
+- assets/audio/gym-mode-exit.wav
+- assets/audio/protocol-move.wav
+- assets/audio/protocol-selected.wav
+- assets/audio/workout-briefing-open.wav
+- assets/audio/workout-start.wav
+- assets/audio/gym-set-complete.wav
+- assets/audio/gym-set-edit.wav
+- assets/audio/rest-start.wav
+- assets/audio/rest-30.wav
+- assets/audio/rest-10.wav
+- assets/audio/rest-ready.wav
+- assets/audio/rest-cancelled.wav
+- assets/audio/gym-exercise-complete.wav
+- assets/audio/exercise-skipped.wav
+- assets/audio/exercise-reordered.wav
+- assets/audio/personal-record.wav
+- assets/audio/score-reveal.wav
+- assets/audio/grade-reveal.wav
+- assets/audio/gym-workout-complete.wav
+- assets/audio/gym-workout-abandoned.wav
+
+Each Gym cue has a synthesized fallback. The Gym sound toggle gates these cues before the global master and category volumes are applied. One specialized action plays one dominant sound; generic click audio is suppressed inside Gym Mode.
+
 Optional numbered habit notes:
 
 - `assets/audio/habit-step-1.wav`

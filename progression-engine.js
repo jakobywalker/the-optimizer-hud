@@ -8,7 +8,21 @@ const TRACK_DEFINITIONS=[
 ].map(([id,name,type])=>({id,name,type}));
 const ACHIEVEMENT_DEFINITIONS={
  "mission-complete":{id:"mission-complete",name:"Mission Complete",description:"Complete every required task in a mission.",icon:"mission",rarity:"common",repeatable:true,hidden:false},
- "bottleneck-removed":{id:"bottleneck-removed",name:"Bottleneck Removed",description:"Remove a source of recurring friction.",icon:"broken-chain",rarity:"uncommon",repeatable:true,hidden:false}
+ "bottleneck-removed":{id:"bottleneck-removed",name:"Bottleneck Removed",description:"Remove a source of recurring friction.",icon:"broken-chain",rarity:"uncommon",repeatable:true,hidden:false},
+ "gym-first-set":{id:"gym-first-set",name:"First Set",description:"Complete the first logged working set.",icon:"training",rarity:"common",repeatable:false,hidden:false},
+ "gym-first-protocol":{id:"gym-first-protocol",name:"First Protocol",description:"Complete the first training protocol.",icon:"training",rarity:"common",repeatable:false,hidden:false},
+ "gym-mission-ready":{id:"gym-mission-ready",name:"Mission Ready",description:"Complete every required exercise in a workout.",icon:"target",rarity:"uncommon",repeatable:true,hidden:false},
+ "gym-clean-run":{id:"gym-clean-run",name:"Clean Run",description:"Complete every required working set without skipping.",icon:"shield",rarity:"uncommon",repeatable:true,hidden:false},
+ "gym-progressive-overload":{id:"gym-progressive-overload",name:"Progressive Overload",description:"Improve weight or reps on a comparable exercise.",icon:"trend",rarity:"uncommon",repeatable:true,hidden:false},
+ "gym-weight-pr":{id:"gym-weight-pr",name:"Weight PR",description:"Set a new successful weight record.",icon:"weight",rarity:"rare",repeatable:true,hidden:false},
+ "gym-rep-pr":{id:"gym-rep-pr",name:"Rep PR",description:"Set a new rep record at the same weight.",icon:"repeat",rarity:"rare",repeatable:true,hidden:false},
+ "gym-volume-pr":{id:"gym-volume-pr",name:"Volume PR",description:"Exceed previous exercise volume.",icon:"chart",rarity:"rare",repeatable:true,hidden:false},
+ "gym-locked-in":{id:"gym-locked-in",name:"Locked In",description:"Finish a workout with Efficiency of 90 or higher.",icon:"lock",rarity:"rare",repeatable:true,hidden:false},
+ "gym-perfect-execution":{id:"gym-perfect-execution",name:"Perfect Execution",description:"Finish a workout with Execution of 95 or higher.",icon:"precision",rarity:"epic",repeatable:true,hidden:false},
+ "gym-full-protocol-cycle":{id:"gym-full-protocol-cycle",name:"Full Protocol Cycle",description:"Complete all five protocols at least once.",icon:"cycle",rarity:"epic",repeatable:false,hidden:false},
+ "gym-five-protocol-cycle":{id:"gym-five-protocol-cycle",name:"Five-Day Protocol",description:"Complete all five protocols within a rolling training cycle.",icon:"streak",rarity:"epic",repeatable:true,hidden:false},
+ "gym-body-engine-online":{id:"gym-body-engine-online",name:"Body Engine Online",description:"Complete 20 workouts.",icon:"engine",rarity:"epic",repeatable:false,hidden:false},
+ "gym-no-weak-links":{id:"gym-no-weak-links",name:"No Weak Links",description:"Earn an A grade or higher on all five protocols.",icon:"chain",rarity:"legendary",repeatable:true,hidden:false}
 };
 const MISSION_DEFAULTS={
 "restore home base":{classification:"Infrastructure",impact:"High Leverage",rewards:{playerXp:50,progression:[{targetType:"coreStat",targetId:"alignment",amount:65},{targetType:"coreStat",targetId:"clarity",amount:40},{targetType:"skill",targetId:"environment-alignment",amount:55}]}},

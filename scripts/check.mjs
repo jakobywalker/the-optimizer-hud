@@ -14,7 +14,7 @@ if (!/\.quick-actions\{[^}]*clip-path:none;[^}]*overflow:visible/.test(html)) {
   throw new Error("DATA menu container must remain unclipped");
 }
 
-const runtimeScripts = ["progression-engine.js", "audio-manager.js", "engagement-engine.js", "hud-core.js", "ai-workflow.js", "progression-ui.js", "engagement-ui.js"];
+const runtimeScripts = ["progression-engine.js", "audio-manager.js", "engagement-engine.js", "gym-engine.js", "hud-core.js", "ai-workflow.js", "progression-ui.js", "engagement-ui.js", "gym-ui.js"];
 let previousScriptIndex = -1;
 for (const runtimeScript of runtimeScripts) {
   const marker = `src="${runtimeScript}"`;

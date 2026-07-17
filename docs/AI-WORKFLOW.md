@@ -4,13 +4,13 @@ The Optimizer HUD keeps one versioned state object in local storage and, when si
 
 ## State schema
 
-Schema version 4 uses this metadata:
+Schema version 5 uses this metadata:
 
 ```json
 {
   "meta": {
-    "schemaVersion": 4,
-    "appVersion": "1.3.0",
+    "schemaVersion": 5,
+    "appVersion": "1.4.0",
     "createdAt": "2026-07-15T12:00:00.000Z",
     "updatedAt": "2026-07-15T12:00:00.000Z",
     "lastHandoffAt": null,
@@ -107,6 +107,8 @@ An update file uses:
 
 Supported operations are `add`, `update`, `complete`, `reopen`, `archive`, and `remove`. Engagement-aware entity types include `bottleneck`, `habit`, `habitReward`, and `bottleneckReward` in addition to the existing stat, quest, mission, daily, resource, money, progression, and note targets.
 
+Gym-aware types are gymProtocol, gymExercise, gymSettings, and gymChallenge. AI may update future-session templates and settings or add a challenge. Completed sets, workout snapshots, scores, PRs, reward transactions, and workout achievements remain immutable history.
+
 ### Operation rules
 
 - `update` uses a path relative to the resolved entity, such as `value`, `title`, `description`, or `values.2`.
@@ -199,8 +201,9 @@ Realtime sync retains the existing optimistic revision architecture. On a remote
 - Reward claim markers by idempotency key
 - Bottleneck objects by stable ID, with canonical resolution transactions forcing resolved state
 - Level-up and achievement records by record ID, filtered to canonical transactions
+- Gym sessions by session ID, active sets by set ID, and protocol templates by stable protocol/exercise IDs
 
-Merged histories are sorted chronologically and deduplicated. No Supabase schema or Vercel environment change is required for schema version 4 because the complete state remains in the existing JSONB snapshot. Progression is rebuilt from its baseline and canonical transactions after a conflict merge.
+Merged histories are sorted chronologically and deduplicated. No Supabase schema or Vercel environment change is required for schema version 5 because the complete state remains in the existing JSONB snapshot. Progression is rebuilt from its baseline and canonical transactions after a conflict merge.
 
 ## Validation
 

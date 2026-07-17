@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import "../progression-engine.js";
 import "../audio-manager.js";
 import "../engagement-engine.js";
+import "../gym-engine.js";
 import "../hud-core.js";
 
 const core=globalThis.OptimizerHudCore;
@@ -34,12 +35,12 @@ function checkHabit(state,id,column=0,prefix="habit"){
  return core.completeHabit(state,id,column,{idFactory:ids(prefix),now:"2026-07-17T13:00:00.000Z",transitioned:!before,previousValue:before})
 }
 
-test("schema v4 installs the seven standard habits and preserves custom history",()=>{
+test("schema v5 installs the seven standard habits and preserves custom history",()=>{
  const names=["Gym / Train","My Custom Habit"],values=[[true,false,false,false,false,false,false],[false,true,false,false,false,false,false]],state=migrated("migration",{habitNames:names,habitValues:values});
  assert.deepEqual(state.habits.items.slice(0,7).map(item=>item.id),core.HABIT_IDS);
  assert.equal(state.habits.items.find(item=>item.name==="Gym / Train").values[0],true);
  assert.equal(state.habits.items.find(item=>item.name==="My Custom Habit").values[1],true);
- assert.equal(state.meta.schemaVersion,4)
+ assert.equal(state.meta.schemaVersion,5)
 });
 
 test("standard habit rewards match the progression contract",()=>{

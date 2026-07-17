@@ -1,10 +1,10 @@
 # Progression and Engagement Engine
 
-## Schema v4
+## Schema v5
 
-App version `1.3.0` uses state schema `4`. Migration is idempotent and runs for local storage, imported saves, cloud hydration, realtime snapshots, and conflict snapshots. It preserves personalized values, mission history, checked habits, custom habits, and legacy bottleneck text.
+App version 1.4.0 uses state schema 5. Migration is idempotent and runs for local storage, imported saves, cloud hydration, realtime snapshots, and conflict snapshots. It preserves personalized values, mission history, checked habits, custom habits, and legacy bottleneck text.
 
-Schema v4 adds:
+Schema v5 includes all schema v4 behavior and adds:
 
 - `state.engagement.version`
 - Seven standard habits with stable IDs, structured rewards, and `rewardVersion`
@@ -12,7 +12,10 @@ Schema v4 adds:
 - Object-based bottlenecks with stable IDs and resolution history
 - Habit, daily-clear, and bottleneck reward transaction source snapshots
 - `bottleneck-removed` achievement records
-- Audio category settings: `uiVolume`, `progressVolume`, and `cinematicVolume`
+- Audio category settings: uiVolume, progressVolume, and cinematicVolume
+- state.gym protocol templates, one active session, completed session snapshots, variation history, Gym settings, achievements, and challenges
+- Canonical workout-completion reward transactions and result replay snapshots
+- Gym-aware AI handoffs, AI update validation, and cloud conflict merging
 
 Checked legacy habit cells receive a claim marker without a fabricated XP transaction. This prevents retroactive rewards and uncheck/recheck farming while preserving visible history.
 
