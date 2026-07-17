@@ -225,7 +225,7 @@ body.ultrawide-mode .fit-indicator{border-color:#3fcaf7;background:#0d3b50;color
 
   <section class="player-card">
     <div class="player-id"><div class="avatar">J</div><div><b>THE OPTIMIZER</b><span>Jakoby · Narrative Creator / Leverage Hunter</span></div></div>
-    <div class="level-box"><div class="level-line"><span>LEVEL <b id="playerLevel">27</b></span><span><b id="xpCurrent">4,250</b> / <b id="xpGoal">7,500</b> XP</span></div><div class="xp"><i id="xpBar"></i></div></div>
+    <div class="level-box"><div class="level-line"><span>PLAYER LVL <b id="playerLevel">27</b></span><span><b id="xpCurrent">4,250</b> / <b id="xpGoal">7,500</b> XP</span></div><div class="xp"><i id="xpBar"></i></div></div>
     <div class="quick-actions"><button class="btn primary" id="editBtn">EDIT HUD</button><details class="data-menu" id="dataMenu"><summary class="btn">DATA</summary><div class="data-menu-popover"><button class="btn" id="exportBtn">EXPORT SAVE</button><button class="btn" id="importBtn">IMPORT SAVE</button><button class="btn primary wide" id="aiHandoffBtn">AI HANDOFF</button><button class="btn wide" id="readableReportBtn">EXPORT READABLE REPORT</button><button class="btn wide" id="checkInBtn">CONDITION CHECK-IN</button><button class="btn wide" id="aiUpdateBtn">IMPORT AI UPDATE</button><button class="btn danger wide" id="undoAiBtn">UNDO LAST AI UPDATE</button></div></details><button class="btn" id="motionBtn" title="Toggle subtle HUD ambience">MOTION: ON</button><button class="btn" id="fitBtn" title="Automatically fit the entire HUD to an ultrawide screen">ULTRAWIDE: AUTO</button><button class="btn ghost" id="fullscreenBtn">FULLSCREEN + FIT</button><input type="file" id="importFile" accept="application/json" hidden /><input type="file" id="aiUpdateFile" accept="application/json" hidden /></div>
   </section>
 
@@ -312,6 +312,8 @@ body.ultrawide-mode .fit-indicator{border-color:#3fcaf7;background:#0d3b50;color
 </div>
 <div class="toast" id="toast"></div>
 
+<script src="progression-engine.js"></script>
+<script src="audio-manager.js"></script>
 <script src="hud-core.js"></script>
 <script>
 const storage=(()=>{
@@ -382,11 +384,13 @@ function recordChange(action,entityType,entity,previousValue,newValue,note=''){i
 function esc(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function clamp(v){return Math.max(0,Math.min(100,Number(v)||0))}
 function progressClass(v){return v<35?'low':v<60?'warn':''}
+function progressionTrack(item){return core.trackForItem(state,item)||{level:1,xp:clamp(item?.value),xpRequired:100}}
+function progressionText(track){return `LVL ${track.level} · ${track.xp}%`}
 function render(){rollDaily();renderTop();renderClock();renderPlayer();renderCharacter();renderBottleneck();renderResources();renderQuest();renderDaily();renderLists();renderMissions();renderSkills();renderHabits();renderBase();renderParty();document.getElementById('todayLeverage').value=state.todayLeverage||''}
-function renderTop(){document.getElementById('topMeters').innerHTML='<div class="meter-grid">'+state.top.map(x=>`<div class="metric"><div class="metric-name"><span>${esc(x.name)}</span><span class="metric-value">${clamp(x.value)}%</span></div><div class="bar"><i style="width:${clamp(x.value)}%"></i></div></div>`).join('')+'</div>'}
+function renderTop(){document.getElementById('topMeters').innerHTML='<div class="meter-grid">'+state.top.map(x=>{const track=progressionTrack(x);return `<div class="metric" title="Current condition: ${clamp(x.value)}%"><div class="metric-name"><span>${esc(x.name)}</span><span class="metric-value">${progressionText(track)}</span></div><div class="bar"><i style="width:${track.xp}%"></i></div></div>`}).join('')+'</div>'}
 function renderClock(){const d=new Date();document.getElementById('clockTime').textContent=d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});document.getElementById('clockDate').textContent=d.toLocaleDateString([], {month:'short',day:'2-digit',year:'numeric'}).toUpperCase();const start=new Date(d.getFullYear(),0,0);document.getElementById('dayNumber').textContent='DAY '+Math.floor((d-start)/86400000)}
-function renderPlayer(){playerLevel.textContent=state.player.level;xpCurrent.textContent=Number(state.player.xp).toLocaleString();xpGoal.textContent=Number(state.player.xpGoal).toLocaleString();xpBar.style.width=Math.min(100,state.player.xp/state.player.xpGoal*100)+'%'}
-function renderCharacter(){characterStats.innerHTML=state.character.map(x=>`<div class="stat-row ${progressClass(x.value)}"><div class="ico">${x.icon}</div><label>${esc(x.name)}</label><div class="progress"><i style="width:${clamp(x.value)}%"></i></div><output>${clamp(x.value)}%</output></div>`).join('')}
+function renderPlayer(){playerLevel.textContent=state.player.level;xpCurrent.textContent=Number(state.player.xp).toLocaleString();xpGoal.textContent=Number(state.player.xpRequired||100).toLocaleString();xpBar.style.width=Math.min(100,state.player.xp/(state.player.xpRequired||100)*100)+'%'}
+function renderCharacter(){characterStats.innerHTML=state.character.map(x=>{const track=progressionTrack(x);return `<div class="stat-row ${progressClass(track.xp)}" title="Current condition: ${clamp(x.value)}%"><div class="ico">${x.icon}</div><label>${esc(x.name)}</label><div class="progress"><i style="width:${track.xp}%"></i></div><output class="progression-label">${progressionText(track)}</output></div>`}).join('')}
 function renderBottleneck(){bottleneckTitle.textContent=state.bottleneck.title;bottleneckSub.textContent=state.bottleneck.sub;debuffList.innerHTML=state.bottleneck.items.map(([n,p])=>`<div class="debuff-row"><span>⌁</span><span>${esc(n)}</span><span>${esc(p)}</span></div>`).join('')}
 function formatMoney(v){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:Math.abs(v)%1?2:0,maximumFractionDigits:2}).format(Number(v)||0)}
 function formatSignedMoney(v){const n=Number(v)||0;return `${n>0?'+':n<0?'−':''}${formatMoney(Math.abs(n))}`}
@@ -428,8 +432,8 @@ function renderQuest(){questTitle.textContent=state.quest.title;nextCriticalStep
 function renderDaily(){dailySystem.innerHTML=`<div class="daily-col"><h4>Night Before</h4>${state.daily.night.map(x=>checkHtml('night',x)).join('')}</div><div class="daily-col"><h4>Morning</h4>${state.daily.morning.map(x=>checkHtml('morning',x)).join('')}</div><div class="daily-col"><h4>Daily Priorities</h4><ol class="priority-list">${state.daily.priorities.map(x=>`<li><span class="editable-text" contenteditable="true" data-priority-id="${x.id}">${esc(x.name)}</span></li>`).join('')}</ol></div>`}
 function checkHtml(group,x){return `<label class="check-line"><input class="hud-check" type="checkbox" data-daily-group="${group}" data-daily-id="${x.id}" ${x.completed?'checked':''}><span>${esc(x.name)}</span></label>`}
 function renderLists(){buffs.innerHTML=state.buffs.map(x=>`<div class="list-item"><div class="list-icon">${x.icon}</div><div><b>${esc(x.name)}</b><p>${esc(x.description)}</p></div></div>`).join('');activeDebuffs.innerHTML=state.activeDebuffs.map(x=>`<div class="list-item"><div class="list-icon">${x.icon}</div><div><b>${esc(x.name)}</b><p>${esc(x.description)}</p></div></div>`).join('')}
-function renderMissions(){const active=state.missions.filter(m=>m.status!=='archived');missions.innerHTML=active.map((m,mi)=>{const done=m.tasks.filter(t=>t.completed).length,pct=m.tasks.length?Math.round(done/m.tasks.length*100):0;return `<div class="mission-card ${m.theme}"><div class="mission-top"><span>0${mi+1} &nbsp;${esc(m.name)}</span><span>${pct}%</span></div>${m.tasks.map(t=>`<label class="mission-task"><input class="hud-check" type="checkbox" data-mission-id="${m.id}" data-task-id="${t.id}" ${t.completed?'checked':''}><span>${esc(t.name)}</span></label>`).join('')}<div class="add-task"><input placeholder="Add mission task" data-add-input="${m.id}"><button data-add-task="${m.id}">+</button></div><div class="reward">REWARD: ${esc(m.reward)}</div></div>`}).join('')}
-function renderSkills(){skills.innerHTML=state.skills.map(x=>`<div class="skill-row"><span>${esc(x.name)}</span><div class="progress"><i style="width:${clamp(x.value)}%"></i></div><b>LVL ${Math.round(x.value)}</b></div>`).join('')}
+function renderMissions(){const active=state.missions.filter(m=>m.status!=='archived');missions.innerHTML=active.map((m,mi)=>{const done=m.tasks.filter(t=>t.completed).length,pct=m.tasks.length?Math.round(done/m.tasks.length*100):0,claimed=Boolean(m.rewardClaimedAt);return `<div class="mission-card ${m.theme} ${claimed?'completed':''}"><div class="mission-top"><span>0${mi+1} &nbsp;${esc(m.name)}</span><span>${claimed?'CLAIMED':pct+'%'}</span></div><div class="mission-meta"><span>${esc(m.classification)}</span><span>${esc(m.impact)}</span></div>${m.tasks.map(t=>`<label class="mission-task"><input class="hud-check" type="checkbox" data-mission-id="${m.id}" data-task-id="${t.id}" ${t.completed?'checked':''}><span>${esc(t.name)}</span></label>`).join('')}<div class="add-task"><input placeholder="Add mission task" data-add-input="${m.id}"><button data-add-task="${m.id}">+</button></div><div class="reward">REWARD: ${esc(core.formatMissionRewards(state,m))}</div><div class="mission-tools"><button type="button" data-mission-edit="${m.id}">EDIT MISSION</button>${claimed&&core.replayMission(state,m.id)?`<button type="button" data-mission-replay="${m.id}">REPLAY SUMMARY</button>`:''}</div></div>`}).join('')}
+function renderSkills(){skills.innerHTML=state.skills.map(x=>{const track=progressionTrack(x);return `<div class="skill-row" title="Current condition: ${clamp(x.value)}%"><span>${esc(x.name)}</span><div class="progress"><i style="width:${track.xp}%"></i></div><b>${progressionText(track)}</b></div>`}).join('')}
 function renderHabits(){const days=['M','T','W','T','F','S','S'];habitTracker.innerHTML=`<table class="habit-table"><thead><tr><th></th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>${state.habits.items.map(x=>`<tr><td>${esc(x.name)}</td>${days.map((d,ci)=>`<td><input class="habit-dot" type="checkbox" data-habit-id="${x.id}" data-habit-col="${ci}" ${x.values[ci]?'checked':''}></td>`).join('')}</tr>`).join('')}</tbody></table>`}
 function renderBase(){baseStatus.innerHTML=state.base.map(x=>`<div class="base-card"><div class="base-icon">${x.icon}</div><b>${esc(x.name)}</b><output>${clamp(x.value)}%</output></div>`).join('')}
 function renderParty(){partySlots.innerHTML=state.party.map(x=>`<div class="slot" data-slot-id="${x.id}">${x.name?`<div style="font-size:10px;text-align:center;color:#bfe9ff">${esc(x.name)}</div>`:`<div>＋<small>OPEN SLOT</small></div>`}</div>`).join('')}
@@ -440,7 +444,13 @@ function updateInline(){
   const questBefore={title:state.quest.title,next:state.quest.next},questAfter={title:questTitle.textContent.trim(),next:nextCriticalStep.textContent.trim()};recordChange('main quest changed','mainQuest',state.quest,questBefore,questAfter);Object.assign(state.quest,questAfter);
   document.querySelectorAll('[data-priority-id]').forEach(el=>{const x=state.daily.priorities.find(p=>p.id===el.dataset.priorityId),v=el.textContent.trim();if(x){recordChange('daily priority changed','dailyPriority',x,x.name,v);x.name=v}});saveState()
 }
-function renderEditForm(){const fields=[];fields.push(textField('Player Level','player.level',state.player.level,'number'),textField('Current XP','player.xp',state.player.xp,'number'),textField('XP Goal','player.xpGoal',state.player.xpGoal,'number'));state.top.forEach((x,i)=>fields.push(rangeField(x.name,'top.'+i+'.value',x.value)));state.character.forEach((x,i)=>fields.push(rangeField(x.name,'character.'+i+'.value',x.value)));state.skills.forEach((x,i)=>fields.push(rangeField('Skill: '+x.name,'skills.'+i+'.value',x.value)));state.base.forEach((x,i)=>fields.push(rangeField('Base: '+x.name,'base.'+i+'.value',x.value)));document.getElementById('editForm').innerHTML=fields.join('')}
+function renderEditForm(){
+ const fields=[bonusField('Player Bonus XP','player')],seen=new Set(['player']);
+ for(const item of[...state.top,...state.character,...state.skills]){if(seen.has(item.progressionId))continue;seen.add(item.progressionId);const track=progressionTrack(item);fields.push(bonusField(`${track.name} Bonus XP`,track.id))}
+ state.base.forEach((x,i)=>fields.push(rangeField('Base: '+x.name,'base.'+i+'.value',x.value)));
+ document.getElementById('editForm').innerHTML=fields.join('')
+}
+function bonusField(label,targetId){return `<div class="field"><label>${esc(label)}</label><input data-progression-bonus="${esc(targetId)}" type="number" min="0" max="1000000000" step="1" value="0" placeholder="Controlled XP award"></div>`}
 function textField(label,path,value,type='text'){return `<div class="field"><label>${esc(label)}</label><input data-edit-path="${esc(path)}" type="${type}" value="${esc(value)}"></div>`}
 function rangeField(label,path,value){return `<div class="field"><label>${esc(label)}</label><div class="range-wrap"><input data-edit-path="${esc(path)}" type="range" min="0" max="100" value="${clamp(value)}"><output>${clamp(value)}%</output></div></div>`}
 function setPath(obj,path,val){const p=path.split('.');let o=obj;for(let i=0;i<p.length-1;i++)o=o[p[i]];o[p[p.length-1]]=val}
@@ -470,7 +480,18 @@ function undoMoneyEntry(){
 document.addEventListener('focusin',e=>{if(e.target.id==='todayLeverage')e.target.dataset.previousValue=state.todayLeverage||''});
 document.addEventListener('change',e=>{
   if(e.target.matches('[data-daily-id]')){const x=state.daily[e.target.dataset.dailyGroup].find(v=>v.id===e.target.dataset.dailyId),before=x.completed;x.completed=e.target.checked;recordChange(x.completed?'daily action completed':'daily action reopened','dailyAction',x,before,x.completed);saveState()}
-  if(e.target.matches('[data-task-id]')){const m=state.missions.find(v=>v.id===e.target.dataset.missionId),x=m?.tasks.find(v=>v.id===e.target.dataset.taskId);if(x){const missionWasComplete=m.tasks.length>0&&m.tasks.every(t=>t.completed),before=x.completed;x.completed=e.target.checked;recordChange(x.completed?'task completed':'task reopened','missionTask',x,before,x.completed);const missionIsComplete=m.tasks.length>0&&m.tasks.every(t=>t.completed);if(missionIsComplete!==missionWasComplete){const previousStatus=m.status;m.status=missionIsComplete?'completed':'active';recordChange(missionIsComplete?'mission completed':'mission reopened','mission',m,previousStatus,m.status)}saveState();renderMissions()}}
+  if(e.target.matches('[data-task-id]')){
+    const m=state.missions.find(v=>v.id===e.target.dataset.missionId),x=m?.tasks.find(v=>v.id===e.target.dataset.taskId);
+    if(x){
+      const missionWasComplete=m.tasks.length>0&&m.tasks.every(t=>t.completed),before=x.completed;x.completed=e.target.checked;
+      recordChange(x.completed?'task completed':'task reopened','missionTask',x,before,x.completed);
+      const missionIsComplete=m.tasks.length>0&&m.tasks.every(t=>t.completed);let completion=null;
+      if(missionIsComplete&&!missionWasComplete)completion=core.completeMission(state,m.id,{clientId:hudClientId});
+      else if(!missionIsComplete&&missionWasComplete){const previousStatus=m.status;m.status='active';recordChange('mission reopened','mission',m,previousStatus,m.status)}
+      saveState();render();applyScreenFit();
+      if(completion?.applied)window.OptimizerProgressionUI?.enqueue(completion.transaction).catch(error=>console.warn('Mission presentation failed after rewards were saved.',error));
+    }
+  }
   if(e.target.matches('[data-habit-id]')){const x=state.habits.items.find(v=>v.id===e.target.dataset.habitId),i=+e.target.dataset.habitCol,before=x.values[i];x.values[i]=e.target.checked;recordChange(x.values[i]?'habit completed':'habit reopened','habit',x,before,x.values[i],'Day '+(i+1));saveState()}
   if(e.target.id==='todayLeverage'){const before=e.target.dataset.previousValue??state.todayLeverage;state.todayLeverage=e.target.value;recordChange('note changed','note',{id:'today-leverage',name:"Today's Leverage"},before,state.todayLeverage);saveState()}
 });
@@ -487,7 +508,12 @@ document.addEventListener('click',e=>{
 });
 editBtn.onclick=()=>{renderEditForm();editModal.classList.add('open')};
 closeModal.onclick=cancelEdit.onclick=()=>editModal.classList.remove('open');
-saveEdit.onclick=()=>{const before=clone(state);document.querySelectorAll('[data-edit-path]').forEach(el=>setPath(state,el.dataset.editPath,el.type==='number'||el.type==='range'?Number(el.value):el.value));state.top.forEach((x,i)=>recordChange('stat changed','topStat',x,before.top[i].value,x.value));state.character.forEach((x,i)=>recordChange('stat changed','characterStat',x,before.character[i].value,x.value));state.skills.forEach((x,i)=>recordChange('skill changed','skill',x,before.skills[i].value,x.value));state.base.forEach((x,i)=>recordChange('home-base value changed','homeBase',x,before.base[i].value,x.value));['level','xp','xpGoal'].forEach(k=>recordChange('stat changed','player',{id:'player',name:k},before.player[k],state.player[k]));saveState(true);editModal.classList.remove('open');render()};
+saveEdit.onclick=()=>{
+ const before=clone(state);document.querySelectorAll('[data-edit-path]').forEach(el=>setPath(state,el.dataset.editPath,el.type==='number'||el.type==='range'?Number(el.value):el.value));
+ const bonuses=[...document.querySelectorAll('[data-progression-bonus]')].map(el=>({targetId:el.dataset.progressionBonus,amount:Math.max(0,Math.round(Number(el.value)||0))})).filter(item=>item.amount>0);
+ if(bonuses.length){const id=core.createId(),playerXp=bonuses.find(item=>item.targetId==='player')?.amount||0,progression=bonuses.filter(item=>item.targetId!=='player').map(item=>({targetId:item.targetId,targetType:state.progression.tracks[item.targetId].type,amount:item.amount})),result=core.createManualAdjustment(state,{id,idempotencyKey:`manual:${id}`,sourceType:'manual',sourceId:id,sourceName:'Edit HUD controlled award',playerXp,progression},{clientId:hudClientId});recordHudEvent({action:'manual progression adjustment',entityType:'progression',entityId:result.transaction.id,entityName:'Edit HUD controlled award',previousValue:result.transaction.before,newValue:result.transaction.after})}
+ state.base.forEach((x,i)=>recordChange('home-base value changed','homeBase',x,before.base[i].value,x.value));saveState(true);editModal.classList.remove('open');render()
+};
 resetAll.onclick=()=>{if(confirm('Reset the entire HUD to its original state?')){const before=clone(state);state=core.migrateState({},defaultState);recordHudEvent({action:'state reset',entityType:'state',entityId:'hud',entityName:'HUD',previousValue:{meta:before.meta},newValue:{meta:state.meta}});saveState();editModal.classList.remove('open');render();toast('HUD reset')}};
 clearDaily.onclick=()=>{[...state.daily.night,...state.daily.morning].forEach(x=>{if(x.completed){x.completed=false;recordChange('daily action reopened','dailyAction',x,true,false,'Manual daily reset')}});saveState();renderDaily()};
 clearWeek.onclick=()=>{state.habits.items.forEach(x=>x.values.forEach((v,i)=>{if(v){x.values[i]=false;recordChange('habit reopened','habit',x,true,false,'Manual week reset day '+(i+1))}}));saveState();renderHabits()};
@@ -642,5 +668,6 @@ applyScreenFit();
 syncMobileMode();
 </script>
 <script src="ai-workflow.js"></script>
+<script src="progression-ui.js"></script>
 </body>
 </html>

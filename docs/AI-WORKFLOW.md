@@ -4,13 +4,13 @@ The Optimizer HUD keeps one versioned state object in local storage and, when si
 
 ## State schema
 
-Schema version 2 uses this metadata:
+Schema version 3 uses this metadata:
 
 ```json
 {
   "meta": {
-    "schemaVersion": 2,
-    "appVersion": "1.1.0",
+    "schemaVersion": 3,
+    "appVersion": "1.2.0",
     "createdAt": "2026-07-15T12:00:00.000Z",
     "updatedAt": "2026-07-15T12:00:00.000Z",
     "lastHandoffAt": null,
@@ -19,7 +19,7 @@ Schema version 2 uses this metadata:
 }
 ```
 
-The authoritative state also contains player values, top and character stats, the bottleneck, resources, the money ledger, main quest and stages, daily actions and priorities, buffs, debuffs, missions and tasks, skills, habits, home-base locations, party slots, notes, events, check-ins, handoff records, daily history, weekly history, and one rollback record.
+The authoritative state also contains player progression, category tracks, reward transactions, level-ups, earned achievements, audio settings, top and character stats, the bottleneck, resources, the money ledger, main quest and stages, daily actions and priorities, buffs, debuffs, missions and tasks, skills, habits, home-base locations, party slots, notes, events, check-ins, handoff records, daily history, weekly history, and one rollback record.
 
 ### Migration behavior
 
@@ -68,7 +68,7 @@ Daily and weekly rollovers archive final completion into `dailyHistory` and `wee
 
 ## Condition check-ins
 
-The `DATA` menu provides `CONDITION CHECK-IN` and an optional check-in step during `AI HANDOFF`. Fields are optional and observational. They do not change visible stats unless the user checks the explicit copy option for Energy, Clarity, Momentum, and Alignment.
+The `DATA` menu provides `CONDITION CHECK-IN` and an optional check-in step during `AI HANDOFF`. Fields are optional and observational. They do not award progression XP. The explicit copy option updates condition values only; progression changes require a reward or adjustment transaction.
 
 ## AI handoff format
 
@@ -82,7 +82,7 @@ The `DATA` menu provides `CONDITION CHECK-IN` and an optional check-in step duri
 - Latest condition check-in
 - Events since the previous handoff
 - Complete authoritative current state
-- Relevant event, check-in, rollover, and money history
+- Relevant event, check-in, rollover, money, reward-transaction, level-up, and achievement history
 
 The handoff record is committed to state only after the browser download has been generated. `EXPORT READABLE REPORT` creates a Markdown view of the same data without advancing the handoff checkpoint. Rollback snapshots, authentication sessions, environment variables, and Supabase credentials are excluded.
 
@@ -105,7 +105,7 @@ An update file uses:
 }
 ```
 
-Supported operations are `add`, `update`, `complete`, `reopen`, `archive`, and `remove`. Supported entity types are `topStat`, `characterStat`, `mainQuest`, `questStage`, `mission`, `missionTask`, `bottleneck`, `buff`, `debuff`, `resource`, `skill`, `homeBase`, `party`, `dailyAction`, `dailyPriority`, `habit`, `note`, and `money`.
+Supported operations are `add`, `update`, `complete`, `reopen`, `archive`, and `remove`. Supported entity types are `topStat`, `characterStat`, `mainQuest`, `questStage`, `mission`, `missionTask`, `bottleneck`, `buff`, `debuff`, `resource`, `skill`, `homeBase`, `party`, `dailyAction`, `dailyPriority`, `habit`, `note`, `money`, `progression`, and `missionReward`.
 
 ### Operation rules
 
@@ -116,11 +116,18 @@ Supported operations are `add`, `update`, `complete`, `reopen`, `archive`, and `
 - `remove` requires a resolved collection entity. Removing a party target clears that slot instead of changing slot identity.
 - `add` supports collection entities. For a new mission task, `entityId` is the parent mission ID and `value` describes the new task.
 - Money must use `operation: "add"` with a non-zero `value.delta`. An AI cannot replace or remove the ledger.
+- Progression uses `operation: "add"`, a `progression` target ID (or `player`), and a positive `value.amount`. It creates an idempotent manual-adjustment transaction.
+- Structured mission rewards use `operation: "update"`, `entityType: "missionReward"`, and the exact mission ID. Claimed transactions remain unchanged.
 - Paths containing `__proto__`, `prototype`, or `constructor` are rejected.
 - Duplicate update IDs and operation IDs are rejected.
 
 See [example-ai-update.json](examples/example-ai-update.json).
 
+## Progression data
+
+Each handoff includes `progression.player`, all stable progression tracks, missions completed since the prior handoff, reward transactions, level-ups, achievements, source mission IDs, and timestamps. The same information is present in authoritative `currentState` and relevant history.
+
+A progression update must be explicit and additive. An AI must not set `level` or `xp` through a generic stat operation. Mission rewards can be edited before or after completion, but an already-applied transaction is historical and immutable. Replaying or importing a completed mission never applies its transaction again.
 ## Instructions for another AI
 
 1. Read the handoff JSON, treating `currentState` as authoritative.
@@ -149,8 +156,10 @@ Realtime sync retains the existing optimistic revision architecture. On a remote
 - Handoffs by export ID
 - Daily and weekly histories by history ID
 - Money entries by ledger ID, preserving undo markers
+- Reward transactions by transaction ID and mission/reward-version idempotency key
+- Level-up and achievement records by record ID, filtered to canonical transactions
 
-Merged histories are sorted chronologically and deduplicated. No Supabase schema or Vercel environment change is required for schema version 2 because the complete state remains in the existing JSONB snapshot.
+Merged histories are sorted chronologically and deduplicated. No Supabase schema or Vercel environment change is required for schema version 3 because the complete state remains in the existing JSONB snapshot. Progression is rebuilt from its baseline and canonical transactions after a conflict merge.
 
 ## Validation
 

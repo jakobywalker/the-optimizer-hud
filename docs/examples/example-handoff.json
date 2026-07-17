@@ -5,9 +5,9 @@
   "exportedAt": "2026-07-15T12:30:00.000Z",
   "previousExportId": null,
   "previousExportAt": null,
-  "appVersion": "1.1.0",
+  "appVersion": "1.2.0",
   "summary": {
-    "currentChapter": "Level 4",
+    "currentChapter": "Player Level 4",
     "mainQuest": "Launch a small creative project",
     "mainQuestProgress": 50,
     "currentBottleneck": {
@@ -18,10 +18,234 @@
     "reopenedSinceLastHandoff": [],
     "newlyAddedSinceLastHandoff": [],
     "blockedItems": [],
-    "habitSummary": { "completed": 2, "total": 7, "percent": 29 },
-    "dailySummary": { "total": 2, "complete": 1, "incomplete": 1, "percent": 50 },
+    "habitSummary": {
+      "completed": 2,
+      "total": 7,
+      "percent": 29
+    },
+    "dailySummary": {
+      "total": 2,
+      "complete": 1,
+      "incomplete": 1,
+      "percent": 50
+    },
     "moneyChange": 0,
-    "majorStatChanges": []
+    "majorStatChanges": [],
+    "progression": {
+      "player": {
+        "id": "player",
+        "name": "The Optimizer",
+        "type": "player",
+        "level": 4,
+        "xp": 30,
+        "xpRequired": 100,
+        "percentToNextLevel": 30
+      },
+      "tracks": [
+        {
+          "id": "energy",
+          "name": "Energy",
+          "type": "coreStat",
+          "level": 1,
+          "xp": 60,
+          "xpRequired": 100,
+          "percentToNextLevel": 60
+        },
+        {
+          "id": "clarity",
+          "name": "Clarity",
+          "type": "coreStat",
+          "level": 1,
+          "xp": 70,
+          "xpRequired": 100,
+          "percentToNextLevel": 70
+        },
+        {
+          "id": "momentum",
+          "name": "Momentum",
+          "type": "coreStat",
+          "level": 1,
+          "xp": 55,
+          "xpRequired": 100,
+          "percentToNextLevel": 55
+        },
+        {
+          "id": "alignment",
+          "name": "Alignment",
+          "type": "coreStat",
+          "level": 1,
+          "xp": 68,
+          "xpRequired": 100,
+          "percentToNextLevel": 68
+        },
+        {
+          "id": "leverage",
+          "name": "Leverage",
+          "type": "coreStat",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "capacity",
+          "name": "Capacity",
+          "type": "coreStat",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "vision-direction",
+          "name": "Vision / Direction",
+          "type": "attribute",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "creative-clarity",
+          "name": "Creative Clarity",
+          "type": "attribute",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "physical-energy",
+          "name": "Physical Energy",
+          "type": "attribute",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "team-infrastructure",
+          "name": "Team Infrastructure",
+          "type": "attribute",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "fitness",
+          "name": "Fitness",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "optimization",
+          "name": "Optimization",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "music-creation",
+          "name": "Music Creation",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "sales-persuasion",
+          "name": "Sales / Persuasion",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "environment-alignment",
+          "name": "Environment Alignment",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "income-stability",
+          "name": "Income Stability",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "automation-ai",
+          "name": "Automation / AI",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "narrative-analysis",
+          "name": "Narrative Analysis",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "trading-market-read",
+          "name": "Trading / Market Read",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "leadership",
+          "name": "Leadership",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100,
+          "percentToNextLevel": 0
+        },
+        {
+          "id": "execution",
+          "name": "Execution",
+          "type": "attribute",
+          "level": 1,
+          "xp": 58,
+          "xpRequired": 100,
+          "percentToNextLevel": 58
+        },
+        {
+          "id": "planning",
+          "name": "Planning",
+          "type": "skill",
+          "level": 1,
+          "xp": 64,
+          "xpRequired": 100,
+          "percentToNextLevel": 64
+        }
+      ],
+      "missionsCompleted": [],
+      "rewardTransactions": [],
+      "levelUps": [],
+      "achievements": []
+    }
   },
   "latestCheckIn": {
     "id": "check-example-001",
@@ -41,73 +265,842 @@
   "changesSincePreviousHandoff": [],
   "currentState": {
     "meta": {
-      "schemaVersion": 2,
-      "appVersion": "1.1.0",
+      "schemaVersion": 3,
+      "appVersion": "1.2.0",
       "createdAt": "2026-07-01T12:00:00.000Z",
       "updatedAt": "2026-07-15T12:25:00.000Z",
       "lastHandoffAt": null,
       "lastHandoffId": null
     },
-    "player": { "level": 4, "xp": 300, "xpGoal": 1000 },
+    "player": {
+      "id": "player",
+      "name": "The Optimizer",
+      "type": "player",
+      "level": 4,
+      "xp": 30,
+      "xpRequired": 100
+    },
     "top": [
-      { "id": "stat-energy", "name": "Energy", "value": 60 },
-      { "id": "stat-clarity", "name": "Clarity", "value": 70 },
-      { "id": "stat-momentum", "name": "Momentum", "value": 55 },
-      { "id": "stat-alignment", "name": "Alignment", "value": 68 }
+      {
+        "id": "stat-energy",
+        "name": "Energy",
+        "value": 60,
+        "progressionId": "energy"
+      },
+      {
+        "id": "stat-clarity",
+        "name": "Clarity",
+        "value": 70,
+        "progressionId": "clarity"
+      },
+      {
+        "id": "stat-momentum",
+        "name": "Momentum",
+        "value": 55,
+        "progressionId": "momentum"
+      },
+      {
+        "id": "stat-alignment",
+        "name": "Alignment",
+        "value": 68,
+        "progressionId": "alignment"
+      }
     ],
-    "character": [{ "id": "character-execution", "icon": "E", "name": "Execution", "value": 58 }],
-    "bottleneck": { "id": "bottleneck-main", "title": "THE NEXT ACTION IS NOT SCHEDULED", "sub": "Choose one concrete release task.", "items": [] },
-    "resources": [{ "id": "resource-time", "icon": "T", "name": "Time", "value": 65 }],
+    "character": [
+      {
+        "id": "character-execution",
+        "icon": "E",
+        "name": "Execution",
+        "value": 58,
+        "progressionId": "execution"
+      }
+    ],
+    "bottleneck": {
+      "id": "bottleneck-main",
+      "title": "THE NEXT ACTION IS NOT SCHEDULED",
+      "sub": "Choose one concrete release task.",
+      "items": []
+    },
+    "resources": [
+      {
+        "id": "resource-time",
+        "icon": "T",
+        "name": "Time",
+        "value": 65
+      }
+    ],
     "money": {
       "balance": 1000,
       "range": "30",
-      "history": [{ "id": "opening", "ts": "2026-07-01T12:00:00.000Z", "delta": 0, "balance": 1000, "note": "Opening balance", "type": "set", "undoneAt": null }]
+      "history": [
+        {
+          "id": "opening",
+          "ts": "2026-07-01T12:00:00.000Z",
+          "delta": 0,
+          "balance": 1000,
+          "note": "Opening balance",
+          "type": "set",
+          "undoneAt": null
+        }
+      ]
     },
     "quest": {
       "id": "quest-main",
       "title": "Launch a small creative project",
       "next": "Schedule the release task",
       "stages": [
-        { "id": "stage-plan", "name": "Plan", "value": 100 },
-        { "id": "stage-build", "name": "Build", "value": 60 },
-        { "id": "stage-release", "name": "Release", "value": 0 }
+        {
+          "id": "stage-plan",
+          "name": "Plan",
+          "value": 100
+        },
+        {
+          "id": "stage-build",
+          "name": "Build",
+          "value": 60
+        },
+        {
+          "id": "stage-release",
+          "name": "Release",
+          "value": 0
+        }
       ]
     },
     "daily": {
       "date": "2026-07-15",
-      "night": [{ "id": "daily-plan", "name": "Plan tomorrow", "completed": true }],
-      "morning": [{ "id": "daily-move", "name": "Move", "completed": false }],
-      "priorities": [{ "id": "priority-release", "name": "Choose release task" }]
-    },
-    "buffs": [{ "id": "buff-focus", "icon": "+", "name": "Clear Focus", "description": "The project scope is small." }],
-    "activeDebuffs": [{ "id": "debuff-unscheduled", "icon": "-", "name": "Unscheduled Work", "description": "No calendar block exists." }],
-    "missions": [{
-      "id": "mission-release",
-      "name": "Prepare Release",
-      "theme": "green",
-      "reward": "Project shipped",
-      "status": "active",
-      "tasks": [
-        { "id": "task-outline", "name": "Finish outline", "completed": true },
-        { "id": "task-schedule", "name": "Schedule release work", "completed": false }
+      "night": [
+        {
+          "id": "daily-plan",
+          "name": "Plan tomorrow",
+          "completed": true
+        }
+      ],
+      "morning": [
+        {
+          "id": "daily-move",
+          "name": "Move",
+          "completed": false
+        }
+      ],
+      "priorities": [
+        {
+          "id": "priority-release",
+          "name": "Choose release task"
+        }
       ]
-    }],
-    "skills": [{ "id": "skill-planning", "name": "Planning", "value": 64 }],
-    "habits": { "week": "2026-07-13", "items": [{ "id": "habit-walk", "name": "Walk", "values": [true, true, false, false, false, false, false] }] },
-    "base": [{ "id": "base-desk", "icon": "D", "name": "Desk", "value": 75 }],
-    "party": [{ "id": "party-slot-1", "name": "" }],
+    },
+    "buffs": [
+      {
+        "id": "buff-focus",
+        "icon": "+",
+        "name": "Clear Focus",
+        "description": "The project scope is small."
+      }
+    ],
+    "activeDebuffs": [
+      {
+        "id": "debuff-unscheduled",
+        "icon": "-",
+        "name": "Unscheduled Work",
+        "description": "No calendar block exists."
+      }
+    ],
+    "missions": [
+      {
+        "id": "mission-release",
+        "name": "Prepare Release",
+        "theme": "green",
+        "reward": "Project shipped",
+        "status": "active",
+        "tasks": [
+          {
+            "id": "task-outline",
+            "name": "Finish outline",
+            "completed": true
+          },
+          {
+            "id": "task-schedule",
+            "name": "Schedule release work",
+            "completed": false
+          }
+        ],
+        "classification": "General",
+        "impact": "Standard",
+        "rewards": {
+          "playerXp": 25,
+          "progression": [],
+          "achievements": [
+            {
+              "achievementId": "mission-complete"
+            }
+          ],
+          "legacyLabel": "Project shipped"
+        },
+        "completedAt": null,
+        "rewardClaimedAt": null,
+        "rewardVersion": 1,
+        "completionCount": 0
+      }
+    ],
+    "skills": [
+      {
+        "id": "skill-planning",
+        "name": "Planning",
+        "value": 64,
+        "progressionId": "planning"
+      }
+    ],
+    "habits": {
+      "week": "2026-07-13",
+      "items": [
+        {
+          "id": "habit-walk",
+          "name": "Walk",
+          "values": [
+            true,
+            true,
+            false,
+            false,
+            false,
+            false,
+            false
+          ]
+        }
+      ]
+    },
+    "base": [
+      {
+        "id": "base-desk",
+        "icon": "D",
+        "name": "Desk",
+        "value": 75
+      }
+    ],
+    "party": [
+      {
+        "id": "party-slot-1",
+        "name": ""
+      }
+    ],
     "todayLeverage": "Schedule the release task",
     "events": [],
     "checkIns": [],
     "handoffs": [],
     "dailyHistory": [],
-    "weeklyHistory": []
+    "weeklyHistory": [],
+    "rollback": null,
+    "progression": {
+      "version": 1,
+      "tracks": {
+        "energy": {
+          "id": "energy",
+          "name": "Energy",
+          "type": "coreStat",
+          "level": 1,
+          "xp": 60,
+          "xpRequired": 100
+        },
+        "clarity": {
+          "id": "clarity",
+          "name": "Clarity",
+          "type": "coreStat",
+          "level": 1,
+          "xp": 70,
+          "xpRequired": 100
+        },
+        "momentum": {
+          "id": "momentum",
+          "name": "Momentum",
+          "type": "coreStat",
+          "level": 1,
+          "xp": 55,
+          "xpRequired": 100
+        },
+        "alignment": {
+          "id": "alignment",
+          "name": "Alignment",
+          "type": "coreStat",
+          "level": 1,
+          "xp": 68,
+          "xpRequired": 100
+        },
+        "leverage": {
+          "id": "leverage",
+          "name": "Leverage",
+          "type": "coreStat",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "capacity": {
+          "id": "capacity",
+          "name": "Capacity",
+          "type": "coreStat",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "vision-direction": {
+          "id": "vision-direction",
+          "name": "Vision / Direction",
+          "type": "attribute",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "creative-clarity": {
+          "id": "creative-clarity",
+          "name": "Creative Clarity",
+          "type": "attribute",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "physical-energy": {
+          "id": "physical-energy",
+          "name": "Physical Energy",
+          "type": "attribute",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "team-infrastructure": {
+          "id": "team-infrastructure",
+          "name": "Team Infrastructure",
+          "type": "attribute",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "fitness": {
+          "id": "fitness",
+          "name": "Fitness",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "optimization": {
+          "id": "optimization",
+          "name": "Optimization",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "music-creation": {
+          "id": "music-creation",
+          "name": "Music Creation",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "sales-persuasion": {
+          "id": "sales-persuasion",
+          "name": "Sales / Persuasion",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "environment-alignment": {
+          "id": "environment-alignment",
+          "name": "Environment Alignment",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "income-stability": {
+          "id": "income-stability",
+          "name": "Income Stability",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "automation-ai": {
+          "id": "automation-ai",
+          "name": "Automation / AI",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "narrative-analysis": {
+          "id": "narrative-analysis",
+          "name": "Narrative Analysis",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "trading-market-read": {
+          "id": "trading-market-read",
+          "name": "Trading / Market Read",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "leadership": {
+          "id": "leadership",
+          "name": "Leadership",
+          "type": "skill",
+          "level": 1,
+          "xp": 0,
+          "xpRequired": 100
+        },
+        "execution": {
+          "id": "execution",
+          "name": "Execution",
+          "type": "attribute",
+          "level": 1,
+          "xp": 58,
+          "xpRequired": 100
+        },
+        "planning": {
+          "id": "planning",
+          "name": "Planning",
+          "type": "skill",
+          "level": 1,
+          "xp": 64,
+          "xpRequired": 100
+        }
+      },
+      "baseline": {
+        "player": {
+          "id": "player",
+          "name": "The Optimizer",
+          "type": "player",
+          "level": 4,
+          "xp": 30,
+          "xpRequired": 100
+        },
+        "tracks": {
+          "energy": {
+            "id": "energy",
+            "name": "Energy",
+            "type": "coreStat",
+            "level": 1,
+            "xp": 60,
+            "xpRequired": 100
+          },
+          "clarity": {
+            "id": "clarity",
+            "name": "Clarity",
+            "type": "coreStat",
+            "level": 1,
+            "xp": 70,
+            "xpRequired": 100
+          },
+          "momentum": {
+            "id": "momentum",
+            "name": "Momentum",
+            "type": "coreStat",
+            "level": 1,
+            "xp": 55,
+            "xpRequired": 100
+          },
+          "alignment": {
+            "id": "alignment",
+            "name": "Alignment",
+            "type": "coreStat",
+            "level": 1,
+            "xp": 68,
+            "xpRequired": 100
+          },
+          "leverage": {
+            "id": "leverage",
+            "name": "Leverage",
+            "type": "coreStat",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "capacity": {
+            "id": "capacity",
+            "name": "Capacity",
+            "type": "coreStat",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "vision-direction": {
+            "id": "vision-direction",
+            "name": "Vision / Direction",
+            "type": "attribute",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "creative-clarity": {
+            "id": "creative-clarity",
+            "name": "Creative Clarity",
+            "type": "attribute",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "physical-energy": {
+            "id": "physical-energy",
+            "name": "Physical Energy",
+            "type": "attribute",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "team-infrastructure": {
+            "id": "team-infrastructure",
+            "name": "Team Infrastructure",
+            "type": "attribute",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "fitness": {
+            "id": "fitness",
+            "name": "Fitness",
+            "type": "skill",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "optimization": {
+            "id": "optimization",
+            "name": "Optimization",
+            "type": "skill",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "music-creation": {
+            "id": "music-creation",
+            "name": "Music Creation",
+            "type": "skill",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "sales-persuasion": {
+            "id": "sales-persuasion",
+            "name": "Sales / Persuasion",
+            "type": "skill",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "environment-alignment": {
+            "id": "environment-alignment",
+            "name": "Environment Alignment",
+            "type": "skill",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "income-stability": {
+            "id": "income-stability",
+            "name": "Income Stability",
+            "type": "skill",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "automation-ai": {
+            "id": "automation-ai",
+            "name": "Automation / AI",
+            "type": "skill",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "narrative-analysis": {
+            "id": "narrative-analysis",
+            "name": "Narrative Analysis",
+            "type": "skill",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "trading-market-read": {
+            "id": "trading-market-read",
+            "name": "Trading / Market Read",
+            "type": "skill",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "leadership": {
+            "id": "leadership",
+            "name": "Leadership",
+            "type": "skill",
+            "level": 1,
+            "xp": 0,
+            "xpRequired": 100
+          },
+          "execution": {
+            "id": "execution",
+            "name": "Execution",
+            "type": "attribute",
+            "level": 1,
+            "xp": 58,
+            "xpRequired": 100
+          },
+          "planning": {
+            "id": "planning",
+            "name": "Planning",
+            "type": "skill",
+            "level": 1,
+            "xp": 64,
+            "xpRequired": 100
+          }
+        }
+      }
+    },
+    "rewardTransactions": [],
+    "levelUps": [],
+    "earnedAchievements": [],
+    "settings": {
+      "audio": {
+        "enabled": true,
+        "volume": 0.22
+      }
+    }
   },
   "relevantHistory": {
     "events": [],
     "checkIns": [],
     "daily": [],
     "weekly": [],
-    "money": [{ "id": "opening", "ts": "2026-07-01T12:00:00.000Z", "delta": 0, "balance": 1000, "note": "Opening balance", "type": "set", "undoneAt": null }]
+    "money": [
+      {
+        "id": "opening",
+        "ts": "2026-07-01T12:00:00.000Z",
+        "delta": 0,
+        "balance": 1000,
+        "note": "Opening balance",
+        "type": "set",
+        "undoneAt": null
+      }
+    ],
+    "rewardTransactions": [],
+    "levelUps": [],
+    "achievements": []
+  },
+  "progression": {
+    "player": {
+      "id": "player",
+      "name": "The Optimizer",
+      "type": "player",
+      "level": 4,
+      "xp": 30,
+      "xpRequired": 100,
+      "percentToNextLevel": 30
+    },
+    "tracks": [
+      {
+        "id": "energy",
+        "name": "Energy",
+        "type": "coreStat",
+        "level": 1,
+        "xp": 60,
+        "xpRequired": 100,
+        "percentToNextLevel": 60
+      },
+      {
+        "id": "clarity",
+        "name": "Clarity",
+        "type": "coreStat",
+        "level": 1,
+        "xp": 70,
+        "xpRequired": 100,
+        "percentToNextLevel": 70
+      },
+      {
+        "id": "momentum",
+        "name": "Momentum",
+        "type": "coreStat",
+        "level": 1,
+        "xp": 55,
+        "xpRequired": 100,
+        "percentToNextLevel": 55
+      },
+      {
+        "id": "alignment",
+        "name": "Alignment",
+        "type": "coreStat",
+        "level": 1,
+        "xp": 68,
+        "xpRequired": 100,
+        "percentToNextLevel": 68
+      },
+      {
+        "id": "leverage",
+        "name": "Leverage",
+        "type": "coreStat",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "capacity",
+        "name": "Capacity",
+        "type": "coreStat",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "vision-direction",
+        "name": "Vision / Direction",
+        "type": "attribute",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "creative-clarity",
+        "name": "Creative Clarity",
+        "type": "attribute",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "physical-energy",
+        "name": "Physical Energy",
+        "type": "attribute",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "team-infrastructure",
+        "name": "Team Infrastructure",
+        "type": "attribute",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "fitness",
+        "name": "Fitness",
+        "type": "skill",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "optimization",
+        "name": "Optimization",
+        "type": "skill",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "music-creation",
+        "name": "Music Creation",
+        "type": "skill",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "sales-persuasion",
+        "name": "Sales / Persuasion",
+        "type": "skill",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "environment-alignment",
+        "name": "Environment Alignment",
+        "type": "skill",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "income-stability",
+        "name": "Income Stability",
+        "type": "skill",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "automation-ai",
+        "name": "Automation / AI",
+        "type": "skill",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "narrative-analysis",
+        "name": "Narrative Analysis",
+        "type": "skill",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "trading-market-read",
+        "name": "Trading / Market Read",
+        "type": "skill",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "leadership",
+        "name": "Leadership",
+        "type": "skill",
+        "level": 1,
+        "xp": 0,
+        "xpRequired": 100,
+        "percentToNextLevel": 0
+      },
+      {
+        "id": "execution",
+        "name": "Execution",
+        "type": "attribute",
+        "level": 1,
+        "xp": 58,
+        "xpRequired": 100,
+        "percentToNextLevel": 58
+      },
+      {
+        "id": "planning",
+        "name": "Planning",
+        "type": "skill",
+        "level": 1,
+        "xp": 64,
+        "xpRequired": 100,
+        "percentToNextLevel": 64
+      }
+    ],
+    "missionsCompleted": [],
+    "rewardTransactions": [],
+    "levelUps": [],
+    "achievements": []
   }
 }

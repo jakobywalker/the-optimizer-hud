@@ -14,6 +14,18 @@ if (!/\.quick-actions\{[^}]*clip-path:none;[^}]*overflow:visible/.test(html)) {
   throw new Error("DATA menu container must remain unclipped");
 }
 
+const runtimeScripts = ["progression-engine.js", "audio-manager.js", "hud-core.js", "ai-workflow.js", "progression-ui.js"];
+let previousScriptIndex = -1;
+for (const runtimeScript of runtimeScripts) {
+  const marker = `src="${runtimeScript}"`;
+  const index = html.indexOf(marker);
+  if (index < 0) throw new Error(`Missing runtime script: ${runtimeScript}`);
+  if (index <= previousScriptIndex) throw new Error(`Runtime script order is invalid at ${runtimeScript}`);
+  previousScriptIndex = index;
+}
+if (!html.includes("core.completeMission(state,m.id") || !html.includes("OptimizerProgressionUI?.enqueue")) {
+  throw new Error("Mission completion must persist rewards before presentation");
+}
 const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
 if (!scripts.length) {
   throw new Error("No inline JavaScript found");

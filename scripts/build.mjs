@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 
 const source = await readFile("index.html", "utf8");
 const marker = "</body>";
@@ -18,6 +18,10 @@ await Promise.all([
   copyFile("sync.js", "dist/sync.js"),
   copyFile("hud-core.js", "dist/hud-core.js"),
   copyFile("ai-workflow.js", "dist/ai-workflow.js"),
+  copyFile("progression-engine.js", "dist/progression-engine.js"),
+  copyFile("audio-manager.js", "dist/audio-manager.js"),
+  copyFile("progression-ui.js", "dist/progression-ui.js"),
+  cp("assets", "dist/assets", { recursive: true }),
 ]);
 
 console.log("Built synced HUD in dist/.");

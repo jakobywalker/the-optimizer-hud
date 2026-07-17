@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import "../progression-engine.js";
 import "../hud-core.js";
 
 const core = globalThis.OptimizerHudCore;
@@ -63,8 +64,8 @@ function updatePatch(state, overrides = {}) {
 
 test("migrates legacy state without losing personalized values", () => {
   const state = migrated();
-  assert.equal(state.meta.schemaVersion, 2);
-  assert.equal(state.meta.appVersion, "1.1.0");
+  assert.equal(state.meta.schemaVersion, 3);
+  assert.equal(state.meta.appVersion, "1.2.0");
   assert.equal(state.missions[0].tasks[0].completed, true);
   assert.equal(state.quest.stages[1].value, 40);
   assert.equal(state.money.balance, 1250);
@@ -120,7 +121,7 @@ test("builds a first handoff with no previous export", () => {
   const handoff = core.buildHandoff(state, { exportId: "export-1", exportedAt: "2026-07-15T12:30:00.000Z" });
   assert.equal(handoff.format, "optimizer-ai-handoff");
   assert.equal(handoff.previousExportId, null);
-  assert.equal(handoff.currentState.meta.schemaVersion, 2);
+  assert.equal(handoff.currentState.meta.schemaVersion, 3);
   assert.equal(Object.hasOwn(handoff.currentState, "rollback"), false);
 });
 

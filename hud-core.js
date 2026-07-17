@@ -1,7 +1,8 @@
 (function(root){
 "use strict";
-const APP_VERSION="1.1.0",STATE_SCHEMA_VERSION=2,HANDOFF_SCHEMA_VERSION="1.0",UPDATE_SCHEMA_VERSION="1.0",EVENT_LIMIT=5000,HISTORY_LIMIT=730;
-const OPS=new Set(["add","update","complete","reopen","archive","remove"]),TYPES=new Set(["topStat","characterStat","mainQuest","questStage","mission","missionTask","bottleneck","buff","debuff","resource","skill","homeBase","party","dailyAction","dailyPriority","habit","note","money"]);
+const APP_VERSION="1.2.0",STATE_SCHEMA_VERSION=3,HANDOFF_SCHEMA_VERSION="1.0",UPDATE_SCHEMA_VERSION="1.0",EVENT_LIMIT=5000,HISTORY_LIMIT=730;
+const progression=root.OptimizerProgressionEngine;if(!progression)throw Error("Optimizer progression engine is unavailable.");
+const OPS=new Set(["add","update","complete","reopen","archive","remove"]),TYPES=new Set(["topStat","characterStat","mainQuest","questStage","mission","missionTask","bottleneck","buff","debuff","resource","skill","homeBase","party","dailyAction","dailyPriority","habit","note","money","progression","missionReward"]);
 const clone=v=>v==null?v:JSON.parse(JSON.stringify(v));
 function createId(){return root.crypto?.randomUUID?root.crypto.randomUUID():`id-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,11)}`}
 function iso(v,f){const d=v?new Date(v):new Date(f||Date.now());return Number.isNaN(d.getTime())?new Date(f||Date.now()).toISOString():d.toISOString()}
@@ -12,7 +13,7 @@ function dedupe(a,key){const m=new Map();(a||[]).forEach(x=>{if(x?.[key])m.set(x
 const byTime=k=>(a,b)=>new Date(a?.[k]||0)-new Date(b?.[k]||0);
 function recalculateMoney(history){if(!history.length)return[];let balance=Number(history[0].balance)-Number(history[0].delta||0);if(!Number.isFinite(balance))balance=0;return history.map(entry=>{const e=clone(entry),delta=Number(e.delta)||0;if(!e.undoneAt)balance=Math.round((balance+delta)*100)/100;e.balance=balance;return e})}
 function migrateState(input,defaults,opt={}){const f=opt.idFactory||createId,now=iso(opt.now),raw=clone(input||{}),s=mergeDeep(clone(defaults||{}),raw);
- s.meta={schemaVersion:2,appVersion:APP_VERSION,createdAt:iso(s.meta?.createdAt,now),updatedAt:iso(s.meta?.updatedAt,now),lastHandoffAt:s.meta?.lastHandoffAt?iso(s.meta.lastHandoffAt,now):null,lastHandoffId:s.meta?.lastHandoffId||null};
+ s.meta={schemaVersion:3,appVersion:APP_VERSION,createdAt:iso(s.meta?.createdAt,now),updatedAt:iso(s.meta?.updatedAt,now),lastHandoffAt:s.meta?.lastHandoffAt?iso(s.meta.lastHandoffAt,now):null,lastHandoffId:s.meta?.lastHandoffId||null};
  if(Array.isArray(s.top))s.top=s.top.map(x=>item(x,f,["name","value"]));else s.top=Object.entries(s.top||{}).map(([name,value])=>({id:f(),name,value:Number(value)||0}));
  s.character=(s.character||[]).map(x=>item(x,f,["icon","name","value"]));
  s.resources=(s.resources||[]).map(x=>item(x,f,["icon","name","value"]));
@@ -37,9 +38,9 @@ function migrateState(input,defaults,opt={}){const f=opt.idFactory||createId,now
  s.checkIns=dedupe((Array.isArray(s.checkIns)?s.checkIns:[]).map(x=>({...x,id:x?.id||f(),timestamp:iso(x?.timestamp,now)})),"id").sort(byTime("timestamp"));
  s.handoffs=dedupe((Array.isArray(s.handoffs)?s.handoffs:[]).map(x=>({...x,exportId:x?.exportId||f(),exportedAt:iso(x?.exportedAt,now)})),"exportId").sort(byTime("exportedAt"));
  s.dailyHistory=dedupe((Array.isArray(s.dailyHistory)?s.dailyHistory:[]).map(x=>({...x,id:x?.id||`daily-${x?.date||f()}`,archivedAt:iso(x?.archivedAt,now)})),"id").sort(byTime("archivedAt")).slice(-HISTORY_LIMIT);
- s.weeklyHistory=dedupe((Array.isArray(s.weeklyHistory)?s.weeklyHistory:[]).map(x=>({...x,id:x?.id||`weekly-${x?.week||f()}`,archivedAt:iso(x?.archivedAt,now)})),"id").sort(byTime("archivedAt")).slice(-HISTORY_LIMIT);s.rollback=s.rollback?.updateId?clone(s.rollback):null;return s}
-function touch(s,t){s.meta=s.meta||{};Object.assign(s.meta,{schemaVersion:2,appVersion:APP_VERSION,updatedAt:iso(t)})}
-function recordEvent(s,d,opt={}){const e={id:d.id||(opt.idFactory||createId)(),timestamp:iso(d.timestamp||opt.now),action:String(d.action||"state changed"),entityType:String(d.entityType||"state"),entityId:d.entityId||null,entityName:d.entityName||null,previousValue:clone(d.previousValue),newValue:clone(d.newValue),note:d.note||"",source:d.source||"user",clientId:d.clientId||opt.clientId||"unknown"};s.events=Array.isArray(s.events)?s.events:[];if(!s.events.some(x=>x.id===e.id))s.events.push(e);s.events.sort(byTime("timestamp"));if(s.events.length>EVENT_LIMIT)s.events.splice(0,s.events.length-EVENT_LIMIT);touch(s,e.timestamp);return e}
+ s.weeklyHistory=dedupe((Array.isArray(s.weeklyHistory)?s.weeklyHistory:[]).map(x=>({...x,id:x?.id||`weekly-${x?.week||f()}`,archivedAt:iso(x?.archivedAt,now)})),"id").sort(byTime("archivedAt")).slice(-HISTORY_LIMIT);s.rollback=s.rollback?.updateId?clone(s.rollback):null;progression.migrateState(s,raw,{idFactory:f,now});return s}
+function touch(s,t){s.meta=s.meta||{};Object.assign(s.meta,{schemaVersion:3,appVersion:APP_VERSION,updatedAt:iso(t)})}
+function recordEvent(s,d,opt={}){const e={...clone(d),id:d.id||(opt.idFactory||createId)(),timestamp:iso(d.timestamp||opt.now),action:String(d.action||"state changed"),entityType:String(d.entityType||"state"),entityId:d.entityId||null,entityName:d.entityName||null,previousValue:clone(d.previousValue),newValue:clone(d.newValue),note:d.note||"",source:d.source||"user",clientId:d.clientId||opt.clientId||"unknown"};s.events=Array.isArray(s.events)?s.events:[];if(!s.events.some(x=>x.id===e.id))s.events.push(e);s.events.sort(byTime("timestamp"));if(s.events.length>EVENT_LIMIT)s.events.splice(0,s.events.length-EVENT_LIMIT);touch(s,e.timestamp);return e}
 function summary(a){const total=a.length,complete=a.filter(x=>x.completed).length;return{total,complete,incomplete:total-complete,percent:total?Math.round(complete/total*100):0}}
 function archiveRollovers(s,k,opt={}){const now=iso(opt.now);let changed=false;if(s.daily?.date!==k.today){const a=[...(s.daily.night||[]),...(s.daily.morning||[])],z=summary(a),old=s.daily.date,key=`daily-${old}`;if(!s.dailyHistory.some(x=>x.id===key))s.dailyHistory.push({id:key,date:old,archivedAt:now,completedActions:a.filter(x=>x.completed).map(x=>({id:x.id,name:x.name})),incompleteActions:a.filter(x=>!x.completed).map(x=>({id:x.id,name:x.name})),completionPercent:z.percent});a.forEach(x=>x.completed=false);s.daily.date=k.today;recordEvent(s,{action:"daily rollover",entityType:"daily",entityId:key,entityName:key,previousValue:z,newValue:{date:k.today},source:"system"},opt);changed=true}if(s.habits?.week!==k.week){const h=s.habits.items||[],total=h.length*7,complete=h.reduce((n,x)=>n+x.values.filter(Boolean).length,0),old=s.habits.week,key=`weekly-${old}`;if(!s.weeklyHistory.some(x=>x.id===key))s.weeklyHistory.push({id:key,week:old,archivedAt:now,habits:h.map(x=>({id:x.id,name:x.name,values:clone(x.values),completed:x.values.filter(Boolean).length})),completionPercent:total?Math.round(complete/total*100):0});h.forEach(x=>x.values=Array(7).fill(false));s.habits.week=k.week;recordEvent(s,{action:"weekly rollover",entityType:"habits",entityId:key,entityName:key,previousValue:{complete,total},newValue:{week:k.week},source:"system"},opt);changed=true}s.dailyHistory=dedupe(s.dailyHistory,"id").sort(byTime("archivedAt")).slice(-HISTORY_LIMIT);s.weeklyHistory=dedupe(s.weeklyHistory,"id").sort(byTime("archivedAt")).slice(-HISTORY_LIMIT);return changed}
 const num=v=>v===""||v==null?null:Number.isFinite(Number(v))?Number(v):null,pct=v=>{const n=num(v);return n==null?null:Math.max(0,Math.min(100,n))};
@@ -47,10 +48,12 @@ function createCheckIn(s,v,opt={}){const sleep=num(v.sleepHours),c={id:(opt.idFa
 function questProgress(s){const a=s.quest?.stages||[];return a.length?Math.round(a.reduce((n,x)=>n+Number(x.value||0),0)/a.length):0}
 const digest=e=>({id:e.id,timestamp:e.timestamp,action:e.action,entityType:e.entityType,entityId:e.entityId,entityName:e.entityName,previousValue:clone(e.previousValue),newValue:clone(e.newValue),note:e.note});
 function authoritativeState(s){const x=clone(s);delete x.rollback;return x}
-function buildHandoff(s,opt={}){const exportedAt=iso(opt.exportedAt||opt.now),exportId=opt.exportId||(opt.idFactory||createId)(),previousExportAt=s.meta.lastHandoffAt||null,events=(s.events||[]).filter(e=>!previousExportAt||new Date(e.timestamp)>new Date(previousExportAt)),daily=summary([...(s.daily.night||[]),...(s.daily.morning||[])]),ht=(s.habits.items||[]).length*7,hc=(s.habits.items||[]).reduce((n,x)=>n+x.values.filter(Boolean).length,0);return{format:"optimizer-ai-handoff",schemaVersion:HANDOFF_SCHEMA_VERSION,exportId,exportedAt,previousExportId:s.meta.lastHandoffId||null,previousExportAt,appVersion:APP_VERSION,summary:{currentChapter:`Level ${s.player?.level||0}`,mainQuest:s.quest.title,mainQuestProgress:questProgress(s),currentBottleneck:{title:s.bottleneck.title,detail:s.bottleneck.sub},completedSinceLastHandoff:events.filter(e=>/completed$/.test(e.action)).map(digest),reopenedSinceLastHandoff:events.filter(e=>/reopened$/.test(e.action)).map(digest),newlyAddedSinceLastHandoff:events.filter(e=>/\badded$/.test(e.action)||e.action==="mission created").map(digest),blockedItems:clone(s.bottleneck.items||[]),habitSummary:{completed:hc,total:ht,percent:ht?Math.round(hc/ht*100):0},dailySummary:daily,moneyChange:events.filter(e=>e.entityType==="money").reduce((n,e)=>n+Number(e.newValue?.delta||0),0),majorStatChanges:events.filter(e=>["topStat","characterStat"].includes(e.entityType)).map(digest)},latestCheckIn:clone(s.checkIns.at(-1)||null),changesSincePreviousHandoff:clone(events),currentState:authoritativeState(s),relevantHistory:{events:clone(s.events.slice(-1000)),checkIns:clone(s.checkIns.slice(-100)),daily:clone(s.dailyHistory.slice(-90)),weekly:clone(s.weeklyHistory.slice(-52)),money:clone(s.money.history.slice(-1000))}}}
-function commitHandoff(s,h,opt={}){s.handoffs.push({exportId:h.exportId,exportedAt:h.exportedAt,previousExportId:h.previousExportId,previousExportAt:h.previousExportAt});s.handoffs=dedupe(s.handoffs,"exportId").sort(byTime("exportedAt"));s.meta.lastHandoffId=h.exportId;s.meta.lastHandoffAt=h.exportedAt;recordEvent(s,{action:"AI handoff exported",entityType:"handoff",entityId:h.exportId,entityName:"AI handoff",previousValue:h.previousExportId,newValue:h.exportId},opt)}
-function handoffToMarkdown(h){return["# Optimizer AI Handoff","",`- Export ID: \`${h.exportId}\``,`- Exported: ${h.exportedAt}`,`- Main quest: ${h.summary.mainQuest} (${h.summary.mainQuestProgress}%)`,`- Bottleneck: ${h.summary.currentBottleneck.title}`,"","## Latest Check-In","",h.latestCheckIn?"```json\n"+JSON.stringify(h.latestCheckIn,null,2)+"\n```":"No check-in recorded.","","## Changes Since Previous Handoff","",...(h.changesSincePreviousHandoff.length?h.changesSincePreviousHandoff.map(e=>`- ${e.timestamp}: **${e.action}** - ${e.entityName||e.entityType}`):["No recorded changes."]),"","## Current State","","```json",JSON.stringify(h.currentState,null,2),"```",""].join("\n")}
-function resolve(s,o){
+function buildHandoff(s,opt={}){
+ const exportedAt=iso(opt.exportedAt||opt.now),exportId=opt.exportId||(opt.idFactory||createId)(),previousExportAt=s.meta.lastHandoffAt||null;
+ const events=(s.events||[]).filter(e=>!previousExportAt||new Date(e.timestamp)>new Date(previousExportAt)),daily=summary([...(s.daily.night||[]),...(s.daily.morning||[])]),ht=(s.habits.items||[]).length*7,hc=(s.habits.items||[]).reduce((n,x)=>n+x.values.filter(Boolean).length,0),progressionSummary=progression.progressionHandoff(s,previousExportAt);
+ return{format:"optimizer-ai-handoff",schemaVersion:HANDOFF_SCHEMA_VERSION,exportId,exportedAt,previousExportId:s.meta.lastHandoffId||null,previousExportAt,appVersion:APP_VERSION,summary:{currentChapter:`Player Level ${s.player?.level||1}`,mainQuest:s.quest.title,mainQuestProgress:questProgress(s),currentBottleneck:{title:s.bottleneck.title,detail:s.bottleneck.sub},completedSinceLastHandoff:events.filter(e=>/completed$/.test(e.action)).map(digest),reopenedSinceLastHandoff:events.filter(e=>/reopened$/.test(e.action)).map(digest),newlyAddedSinceLastHandoff:events.filter(e=>/\badded$/.test(e.action)||e.action==="mission created").map(digest),blockedItems:clone(s.bottleneck.items||[]),habitSummary:{completed:hc,total:ht,percent:ht?Math.round(hc/ht*100):0},dailySummary:daily,moneyChange:events.filter(e=>e.entityType==="money").reduce((n,e)=>n+Number(e.newValue?.delta||0),0),majorStatChanges:events.filter(e=>["topStat","characterStat"].includes(e.entityType)).map(digest),progression:progressionSummary},latestCheckIn:clone(s.checkIns.at(-1)||null),changesSincePreviousHandoff:clone(events),currentState:authoritativeState(s),relevantHistory:{events:clone(s.events.slice(-1000)),checkIns:clone(s.checkIns.slice(-100)),daily:clone(s.dailyHistory.slice(-90)),weekly:clone(s.weeklyHistory.slice(-52)),money:clone(s.money.history.slice(-1000)),rewardTransactions:clone(s.rewardTransactions),levelUps:clone(s.levelUps),achievements:clone(s.earnedAchievements)},progression:progressionSummary}
+}function commitHandoff(s,h,opt={}){s.handoffs.push({exportId:h.exportId,exportedAt:h.exportedAt,previousExportId:h.previousExportId,previousExportAt:h.previousExportAt});s.handoffs=dedupe(s.handoffs,"exportId").sort(byTime("exportedAt"));s.meta.lastHandoffId=h.exportId;s.meta.lastHandoffAt=h.exportedAt;recordEvent(s,{action:"AI handoff exported",entityType:"handoff",entityId:h.exportId,entityName:"AI handoff",previousValue:h.previousExportId,newValue:h.exportId},opt)}
+function handoffToMarkdown(h){return["# Optimizer AI Handoff","",`- Export ID: \`${h.exportId}\``,`- Exported: ${h.exportedAt}`,`- Main quest: ${h.summary.mainQuest} (${h.summary.mainQuestProgress}%)`,`- Bottleneck: ${h.summary.currentBottleneck.title}`,"","## Latest Check-In","",h.latestCheckIn?"```json\n"+JSON.stringify(h.latestCheckIn,null,2)+"\n```":"No check-in recorded.","","## Changes Since Previous Handoff","",...(h.changesSincePreviousHandoff.length?h.changesSincePreviousHandoff.map(e=>`- ${e.timestamp}: **${e.action}** - ${e.entityName||e.entityType}`):["No recorded changes."]),"",progression.progressionMarkdown(h.progression),"","## Current State","","```json",JSON.stringify(h.currentState,null,2),"```",""] .join("\n")}function resolve(s,o){
  const maps={topStat:s.top,characterStat:s.character,questStage:s.quest.stages,mission:s.missions,buff:s.buffs,debuff:s.activeDebuffs,resource:s.resources,skill:s.skills,homeBase:s.base,party:s.party,dailyPriority:s.daily.priorities,habit:s.habits.items};
  if(maps[o.entityType]){const i=maps[o.entityType].findIndex(x=>x.id===o.entityId);return i<0?null:{type:o.entityType,item:maps[o.entityType][i],collection:maps[o.entityType],index:i}}
  if(o.entityType==="dailyAction"){for(const group of ["night","morning"]){const i=s.daily[group].findIndex(x=>x.id===o.entityId);if(i>=0)return{type:o.entityType,item:s.daily[group][i],collection:s.daily[group],index:i,group}}return null}
@@ -59,6 +62,8 @@ function resolve(s,o){
  if(o.entityType==="missionTask"){for(const m of s.missions){const i=m.tasks.findIndex(x=>x.id===o.entityId);if(i>=0)return{type:o.entityType,item:m.tasks[i],collection:m.tasks,index:i,parent:m}}return null}
  if(o.entityType==="note"&&(!o.entityId||o.entityId==="today-leverage"))return{type:o.entityType,item:s,property:"todayLeverage"};
  if(o.entityType==="money")return{type:o.entityType,item:s.money};
+ if(o.entityType==="progression"){const item=o.entityId==="player"?s.player:s.progression?.tracks?.[o.entityId];return item?{type:o.entityType,item}:null}
+ if(o.entityType==="missionReward"){const item=s.missions.find(m=>m.id===o.entityId);return item?{type:o.entityType,item}:null}
  return null
 }const getPath=(o,p)=>String(p||"").split(".").filter(Boolean).reduce((v,k)=>v==null?undefined:v[k],o);
 function safePath(p){const a=String(p||"").split(".").filter(Boolean);return a.length&&!a.some(k=>["__proto__","prototype","constructor"].includes(k))}
@@ -80,6 +85,17 @@ function validateAiUpdate(s,p){
   const o={...(raw||{}),id:raw?.id||`operation-${i+1}`};
   if(seen.has(o.id)){r.errors.push(`Duplicate operation ID: ${o.id}.`);r.unresolved.push({operation:o,reason:"Duplicate operation ID."});return}seen.add(o.id);
   if(!OPS.has(o.operation)||!TYPES.has(o.entityType)){r.unresolved.push({operation:o,reason:"Unsupported operation or entity type."});return}
+  if(o.entityType==="progression"){
+   const target=o.entityId==="player"?s.player:s.progression?.tracks?.[o.entityId],xp=Number(o.value?.amount??o.value);
+   if(o.operation!=="add"||!target||!Number.isInteger(xp)||xp<=0||xp>1000000000){r.unresolved.push({operation:o,reason:"Progression updates require a known target and a positive integer XP amount no greater than 1,000,000,000."});return}
+   const currentValue=clone(target);if(Object.hasOwn(o,"previousValue")&&!equal(o.previousValue,currentValue)){r.conflicting.push({operation:o,target:{type:o.entityType,item:target},currentValue,reason:"Previous value conflict."});return}
+   r.valid.push({operation:o,target:{type:o.entityType,item:target},currentValue});return
+  }
+  if(o.entityType==="missionReward"){
+   const mission=s.missions.find(m=>m.id===o.entityId);if(o.operation!=="update"||!mission){r.unresolved.push({operation:o,reason:"Mission reward updates require a known mission."});return}
+   const checked=progression.validateRewards(s,o.value);r.warnings.push(...checked.warnings);const currentValue=clone(mission.rewards);if(Object.hasOwn(o,"previousValue")&&!equal(o.previousValue,currentValue)){r.conflicting.push({operation:o,target:{type:o.entityType,item:mission},currentValue,reason:"Previous value conflict."});return}
+   r.valid.push({operation:o,target:{type:o.entityType,item:mission},currentValue});return
+  }
   if(o.entityType==="money"){
    const delta=Number(o.value?.delta);
    if(o.operation!=="add"||!Number.isFinite(delta)||!delta){r.unresolved.push({operation:o,reason:"Money updates must be non-zero additive ledger operations."});return}
@@ -119,7 +135,12 @@ function mutationAction(type,verb){
 }
 function applyOperation(s,o,opt){
  const t=resolve(s,o);let previous=t?readValue(t,o):null,next=clone(o.value),name=t?.item?.name||t?.item?.title||o.entityType,action=mutationAction(o.entityType,"changed"),targetId=o.entityId;
- if(o.entityType==="money"){
+ if(o.entityType==="progression"){
+  const xp=Number(o.value?.amount??o.value),adjustment=progression.createManualAdjustment(s,{idempotencyKey:`ai:${opt.updateId||"update"}:${o.id}`,sourceType:"ai-update",sourceId:opt.updateId||o.id,sourceName:opt.updateTitle||"AI progression update",playerXp:o.entityId==="player"?xp:0,progression:o.entityId==="player"?[]:[{targetType:t.item.type,targetId:o.entityId,amount:xp}]},opt);
+  previous=clone(adjustment.transaction.before);next=clone(adjustment.transaction.after);name=t.item.name;action="progression XP added";
+ }else if(o.entityType==="missionReward"){
+  previous=clone(t.item.rewards);t.item.rewards=progression.validateRewards(s,o.value).rewards;next=clone(t.item.rewards);name=t.item.name;action="mission rewards changed";
+ }else if(o.entityType==="money"){
   const delta=Number(o.value?.delta),entry={id:o.value?.id||(opt.idFactory||createId)(),ts:iso(opt.now),delta,balance:0,note:String(o.value?.note||o.reason||"AI ledger entry"),type:delta>0?"income":"expense",undoneAt:null};
   previous=s.money.balance;s.money.history.push(entry);s.money.history=recalculateMoney(s.money.history.sort(byTime("ts")));s.money.balance=s.money.history.at(-1).balance;next=s.money.history.find(x=>x.id===entry.id);name=entry.note;action="money entry added";targetId=entry.id;
  }else if(o.operation==="add"){
@@ -128,7 +149,7 @@ function applyOperation(s,o,opt){
   else if(o.entityType==="dailyAction"){const group=o.value.group==="morning"?"morning":"night";collection=s.daily[group]}
   else collection={topStat:s.top,characterStat:s.character,questStage:s.quest.stages,mission:s.missions,buff:s.buffs,debuff:s.activeDebuffs,resource:s.resources,skill:s.skills,homeBase:s.base,party:s.party,dailyPriority:s.daily.priorities,habit:s.habits.items}[o.entityType];
   const x={...o.value,id:o.value.id||(opt.idFactory||createId)()};delete x.group;
-  if(o.entityType==="mission"){x.tasks=(x.tasks||[]).map(q=>({...q,id:q.id||(opt.idFactory||createId)(),completed:Boolean(q.completed)}));x.status=x.status||"active"}
+  if(o.entityType==="mission")Object.assign(x,progression.normalizeMission(x,{idFactory:opt.idFactory||createId,now:opt.now}))
   if(o.entityType==="missionTask"||o.entityType==="dailyAction")x.completed=Boolean(x.completed);
   if(o.entityType==="habit")x.values=Array.from({length:7},(_,i)=>Boolean(x.values?.[i]));
   if(o.entityType==="party")x.name=String(x.name||"");
@@ -144,6 +165,7 @@ function applyOperation(s,o,opt){
   else if(Object.hasOwn(t.item,"completed")){t.item.completed=done;next=t.item.completed}
   else if(Object.hasOwn(t.item,"value")){t.item.value=done?100:0;next=t.item.value}
   else{t.item.status=done?"completed":"active";next=t.item.status}
+  if(o.entityType==="missionTask"){t.parent.status=t.parent.tasks.every(item=>item.completed)?"completed":"active";if(done&&previous!==true&&t.parent.status==="completed")completeMission(s,t.parent.id,{...opt,source:"ai"})}
   action=mutationAction(o.entityType,verb);
  }else if(t.property){
   t.item[t.property]=clone(o.value);next=t.item[t.property];action="note changed";
@@ -159,7 +181,7 @@ function applyAiUpdate(s,v,selected,opt={}){
  const original=clone(s),p=v.patch;
  try{
   s.rollback={createdAt:iso(opt.now),updateId:p.updateId,stateBeforeUpdate:rollbackSnapshot(s)};
-  const applied=list.map(x=>({operationId:x.operation.id,eventId:applyOperation(s,x.operation,opt).id}));
+  const applied=list.map(x=>({operationId:x.operation.id,eventId:applyOperation(s,x.operation,{...opt,updateId:p.updateId,updateTitle:p.title}).id}));
   recordEvent(s,{action:"AI update imported",entityType:"aiUpdate",entityId:p.updateId,entityName:p.title||"AI update",previousValue:null,newValue:{appliedOperations:applied.map(x=>x.operationId)},note:p.rationale||"",source:"ai"},opt);
   return applied
  }catch(error){replaceState(s,original);throw error}
@@ -172,6 +194,12 @@ function applyAiUpdate(s,v,selected,opt={}){
  x.rollback={createdAt:s.rollback.createdAt,updateId,restoredAt:now,stateBeforeUpdate:null};
  recordEvent(x,{action:"AI update rolled back",entityType:"aiUpdate",entityId:updateId,entityName:updateId,previousValue:"applied",newValue:"rolled back"},opt);
  return x
+}function completeMission(s,missionId,opt={}){
+ const mission=s.missions.find(item=>item.id===missionId),previousStatus=mission?.status||"active";
+ const result=progression.claimMissionRewards(s,missionId,opt);if(!mission||result.reason==="incomplete")return result;
+ const transaction=result.transaction,achievementIds=result.achievements?.map(item=>item.id)||transaction?.achievementIds||[],levelUpIds=result.levelUps?.map(item=>item.id)||transaction?.levelUps?.map(item=>item.id)||[];
+ recordEvent(s,{type:"mission-completed",action:"mission completed",entityType:"mission",entityId:mission.id,entityName:mission.name,missionId:mission.id,missionName:mission.name,taskCount:mission.tasks.length,completedTaskCount:mission.tasks.filter(item=>item.completed).length,rewardTransactionId:transaction?.id||null,achievementIds,levelUpIds,previousValue:previousStatus,newValue:{status:mission.status,rewardClaimedAt:mission.rewardClaimedAt},source:opt.source||"user"},opt);
+ return result
 }function mergeMoney(a,b){
  const map=new Map();
  for(const entry of [...(a||[]),...(b||[])]){if(!entry?.id)continue;const previous=map.get(entry.id)||{},merged={...previous,...clone(entry)};if(previous.undoneAt||entry.undoneAt)merged.undoneAt=[previous.undoneAt,entry.undoneAt].filter(Boolean).sort().at(-1);map.set(entry.id,merged)}
@@ -187,6 +215,6 @@ function mergeCloudState(l,r){
  x.money=x.money||{};x.money.history=mergeMoney(l.money?.history,r.money?.history);if(x.money.history.length)x.money.balance=x.money.history.at(-1).balance;
  const h=x.handoffs.at(-1);if(h){x.meta.lastHandoffId=h.exportId;x.meta.lastHandoffAt=h.exportedAt}
  const rollbackTime=v=>new Date(v?.restoredAt||v?.createdAt||0).getTime();if(r.rollback&&rollbackTime(r.rollback)>rollbackTime(x.rollback))x.rollback=clone(r.rollback);
- touch(x);return x
-}root.OptimizerHudCore={APP_VERSION,STATE_SCHEMA_VERSION,HANDOFF_SCHEMA_VERSION,UPDATE_SCHEMA_VERSION,createId,clone,mergeDeep,migrateState,recordEvent,archiveRollovers,createCheckIn,buildHandoff,commitHandoff,handoffToMarkdown,validateAiUpdate,applyAiUpdate,restoreRollback,mergeCloudState,questProgress,authoritativeState};
+ progression.mergeCloudState(l,r,x);touch(x);return x
+}root.OptimizerHudCore={APP_VERSION,STATE_SCHEMA_VERSION,HANDOFF_SCHEMA_VERSION,UPDATE_SCHEMA_VERSION,createId,clone,mergeDeep,migrateState,recordEvent,archiveRollovers,createCheckIn,buildHandoff,commitHandoff,handoffToMarkdown,validateAiUpdate,applyAiUpdate,restoreRollback,mergeCloudState,questProgress,authoritativeState,completeMission,applyProgressionXp:progression.applyProgressionXp,createManualAdjustment:progression.createManualAdjustment,replayMission:progression.replayMission,trackForItem:progression.trackForItem,formatMissionRewards:progression.formatMissionRewards,normalizeMission:progression.normalizeMission,normalizeRewards:progression.normalizeRewards,validateRewards:progression.validateRewards,PresentationQueue:progression.PresentationQueue};
 })(typeof window!=="undefined"?window:globalThis);
