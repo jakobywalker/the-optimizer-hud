@@ -136,7 +136,7 @@ AI updates cannot edit completed sets, workout history, PR records, scores, or a
 
 ## Audio
 
-Gym Mode adds 21 named cues. Every cue has a custom WAV path, category, cooldown, duration, and synthesized fallback. Gym Mode’s sound toggle gates these cues in addition to the global audio settings. Specialized interactions are marked so the generic click router does not layer another sound underneath.
+Gym Mode adds 21 named cues. Every cue has a custom WAV path, category, cooldown, duration, and synthesized fallback. Gym Mode's sound toggle gates these cues in addition to the global audio settings. Specialized interactions are marked so the generic click router does not layer another sound underneath.
 
 See `assets/audio/README.md` for exact paths.
 
