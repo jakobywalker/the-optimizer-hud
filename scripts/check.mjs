@@ -35,6 +35,9 @@ if (primaryTabs.join(",") !== "missions,grinds") {
 if ((html.match(/data-primary-tab-mirror=/g) || []).length !== 2 || html.includes("data-mobile-tab=")) {
   throw new Error("Mobile progression must mirror only Missions and Grinds");
 }
+if (!grindUi.includes(".mission-canonical,.mission-slot,.mission-readout{min-width:0}") || !grindUi.includes(".mission-layout,.daily-grind-grid{grid-template-columns:minmax(0,1fr)}")) {
+  throw new Error("Mobile mission panels must not widen the progression surface");
+}
 const tabSelection = grindUi.match(/function selectPrimaryTab[\s\S]*?function renderBoard/)?.[0] || "";
 if (!grindUi.includes('value==="grinds"?"grinds":"missions"') || !grindUi.includes('catch{return"missions"}') || !tabSelection.includes("localStorage.setItem") || /saveState|recordEvent|grantReward|createRewardTransaction/.test(tabSelection)) {
   throw new Error("Primary tab switching must be a local-only UI preference");
