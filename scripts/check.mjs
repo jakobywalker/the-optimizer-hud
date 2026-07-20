@@ -67,6 +67,10 @@ if (html.includes("app.style.zoom=String") || html.includes("window.innerWidth/s
 if (!grindUi.includes(".grind-card-grid-page{display:grid;grid-template-columns:repeat(2") || !grindUi.includes("@media(min-width:2500px){.grind-card-grid-page{grid-template-columns:repeat(3") || grindUi.includes("repeat(4,minmax(380px")) {
   throw new Error("The dedicated Grind catalog must remain within two or three readable columns");
 }
+const tabletStyles = sliceBetween(grindUi, "@media(max-width:1100px)", "@media(max-width:760px)");
+if (!tabletStyles.includes(".grind-card-grid-page{grid-template-columns:1fr}") || !grindUi.includes(".grind-mode .grind-nav .grind-btn{min-height:44px")) {
+  throw new Error("Tablet Grind cards and navigation must remain readable");
+}
 for (const heading of ["Recommended Grind", "Active Contracts", "Available Grinds", "Mastery & Streaks", "Unlock Contribution", "Recent Runs"]) {
   if (!grindUi.includes(heading)) throw new Error("Missing dedicated Grind Board section: " + heading);
 }
