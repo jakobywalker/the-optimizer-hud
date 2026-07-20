@@ -13,7 +13,7 @@ Production: [the-optimizer-hud.vercel.app](https://the-optimizer-hud.vercel.app)
 - Levels the player, core stats, attributes, and skills with a fixed 100 XP rule and overflow.
 - Stores level-ups, repeatable mission/bottleneck achievements, completion events, claim markers, and replayable reward summaries.
 - Exports authoritative AI handoffs and validates deliberate AI progression or mission-reward updates.
-- Preserves the full-save JSON workflow, responsive navigation, reduced-motion controls, fullscreen mode, and ultrawide scaling.
+- Preserves the full-save JSON workflow, responsive navigation, reduced-motion controls, fullscreen mode, and controlled ultrawide layout.
 
 ## Local development
 
@@ -28,11 +28,13 @@ npm.cmd run build
 
 ## Missions and Grinds
 
-The primary progression area has exactly two tabs. `MISSIONS` is the default and contains the personalized Main Quest, current campaign and chapter, finite missions, near-complete work, recent completions, and mission history. `GRINDS` contains repeatable activities, contracts, recommendations, mastery, streaks, reward previews, currency readouts, and Grind history. The selected tab is a guarded local UI preference; switching tabs never saves state, syncs remotely, records an event, or grants a reward.
+The application has separate top-level `HUD` and `GRINDS` screens. The HUD is a command center for the personalized Main Quest, current campaign, up to six finite actions, player progression, daily completion, canonical resources, the current bottleneck, and one compact Grind recommendation. Full mission, skill, resource, modifier, habit, Home Base, Party, bottleneck, and leverage controls remain available through the collapsible Systems deck.
 
 `OptimizerGrindEngine.getPrimaryProgressionSurface()` is the shared classifier. Explicit surface fields win, then repeatability and record kind, then safe structural fallbacks. Existing mission and campaign records remain finite Missions, while writing, recording, rehearsal, content, revenue, movement, sleep, and similar repeatable activities remain Grinds.
 
-The expanded Grind Registry provides focused activity sessions, measurable grading, repeatable contracts, mastery and streak tracking, immutable replays, data-driven management, and the Unlock Vault. Gym Mode stays a separate workout game; Grinds shows only a compact next-protocol launcher. Revenue Credits still come only from manually verified realized revenue events, and purchases are never automatic.
+The dedicated Grind Board provides readable recommendation and activity cards, category filters, focused sessions, measurable grading, repeatable contracts, mastery and streak tracking, immutable replays, data-driven management, recent runs, and the Unlock Vault. Gym Mode stays a separate workout game; Grinds shows only a compact next-protocol launcher. Revenue Credits still come only from manually verified realized revenue events, and purchases are never automatic.
+
+The selected top-level screen, Systems collapse map, and two-state HUD density setting use guarded local storage. They do not call canonical save, realtime sync, event recording, handoff generation, or reward functions. Ultrawide mode uses a centered container capped at 3200 pixels and natural vertical scrolling; it never zooms the HUD to fit the viewport.
 
 See [docs/GRIND-ENGINE.md](docs/GRIND-ENGINE.md), [docs/REWARD-ECONOMY.md](docs/REWARD-ECONOMY.md), [docs/UNLOCK-VAULT.md](docs/UNLOCK-VAULT.md), and [docs/CAMPAIGNS.md](docs/CAMPAIGNS.md).
 ## Gym Mode

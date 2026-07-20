@@ -140,7 +140,7 @@ AI updates cannot edit completed sets, workout history, PR records, scores, or a
 
 ## Grind integration
 
-The Grinds tab may show the recommended protocol name and an `ENTER GYM MODE` launcher, but it does not render protocol selection, set logging, rest timers, or workout results. Those remain exclusively inside Gym Mode.
+The dedicated Grind Board may show the recommended protocol name and an `ENTER GYM MODE` launcher, but it does not render protocol selection, set logging, rest timers, or workout results. Gym Mode opens above either HUD or Grinds and returns to the prior top-level screen when closed. The full workout experience remains exclusively inside Gym Mode.
 
 `OptimizerHudCore.finishGymWorkout()` is the canonical finalization route. It calls the Gym scorer and progression transaction first, then:
 

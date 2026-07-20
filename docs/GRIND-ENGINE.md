@@ -2,15 +2,15 @@
 
 The Grind Engine is the data-driven progression layer introduced in app version `1.5.0` and state schema `6`. It turns verified real-world activity into replayable sessions, repeatable contracts, campaign milestones, virtual rewards, mastery, streaks, recommendations, and financially safe unlock planning.
 
-`grind-engine.js` contains rules and state transitions. `grind-ui.js` contains the two-tab primary progression surface, focused session UI, contract registry, campaign controls, mission and Grind histories, management tools, completion presentations, and Unlock Vault.
+`grind-engine.js` contains rules and state transitions. `grind-ui.js` contains the HUD command-center shell, dedicated Grind Board, focused session UI, contract registry, campaign controls, mission and Grind histories, management tools, completion presentations, and Unlock Vault.
 
 ## Primary progression surfaces
 
-The normal daily HUD exposes exactly `MISSIONS` and `GRINDS`. Missions owns finite campaigns, chapters, missions, supporting tasks, near-complete items, recent completions, and mission history. Grinds owns repeatable activities, contracts, recommendations, mastery, streaks, recent verified work, reward previews, and the compact Gym launcher. Status remains canonical data and is available in history and management instead of becoming another daily tab.
+The application exposes separate top-level `HUD` and `GRINDS` experiences. Mission Control owns the current campaign, up to six finite actions, progression and resource summaries, mission details, campaign controls, and mission history. The dedicated Grind Board owns repeatable activities, contracts, recommendations, mastery, streaks, recent verified work, reward previews, unlock contribution, category filters, currencies, and the compact Gym launcher.
 
 `getPrimaryProgressionSurface(item, fallbackKind)` centralizes routing. It prefers `primaryProgressionSurface`, `progressionSurface`, or `surfaceType`; then explicit repeatability and collection kind; then type and structural fallbacks. It defaults conservatively to Missions for unknown finite records. The selector never mutates state.
 
-The selected primary tab uses `optimizerPrimaryProgressionTabV1` in guarded local storage. Invalid or unavailable values fall back to Missions. Selection does not call `saveState()`, realtime sync, event recording, or any reward operation.
+The selected screen uses `optimizerHudScreenV1` in guarded local storage and recognizes the legacy primary-tab preference during transition. Invalid or unavailable values fall back to HUD. `optimizerHudSystemsV1` stores a validated boolean collapse map, and `optimizerHudDensityV1` stores `comfortable` or `compact`. These display preferences never call `saveState()`, realtime sync, event recording, or reward operations.
 
 ## State model
 

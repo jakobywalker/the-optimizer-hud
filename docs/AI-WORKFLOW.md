@@ -127,6 +127,8 @@ Safe content entity types are:
 An approved patch may add an object, edit a safe top-level content field, or archive uncompleted content. It may not set progress, status, completion timestamps, transaction links, revenue events, Revenue Credits, allocations, action completion, eligibility, or purchases. It may not mutate activity sessions, contract runs, currency ledger entries, or completed campaign history.
 
 The JSON handoff exposes separate top-level `missions` and `grind` summaries and mirrors them under `summary`. The readable report renders separate `## Missions` and `## Grinds` sections. Campaign chapters and finite mission status never need to be inferred from repeatable activity history, while Grind recommendations, contracts, mastery, streaks, Gym recommendation, currency balances, revenue events, and unlock evaluations stay grouped together. This supports planning without allowing the AI to assert that work, revenue, or a purchase occurred.
+
+Top-level HUD/Grinds selection, Systems collapse state, and HUD density are local presentation preferences. They are intentionally excluded from handoff events and canonical state summaries.
 ### Operation rules
 
 - `update` uses a path relative to the resolved entity, such as `value`, `title`, `description`, or `values.2`.

@@ -226,7 +226,7 @@ body.ultrawide-mode .fit-indicator{border-color:#3fcaf7;background:#0d3b50;color
   <section class="player-card">
     <div class="player-id"><div class="avatar">J</div><div><b>THE OPTIMIZER</b><span>Jakoby · Narrative Creator / Leverage Hunter</span></div></div>
     <div class="level-box"><div class="level-line"><span>PLAYER LVL <b id="playerLevel">27</b></span><span><b id="xpCurrent">4,250</b> / <b id="xpGoal">7,500</b> XP</span></div><div class="xp"><i id="xpBar"></i></div></div>
-    <div class="quick-actions"><button class="btn gym-launch" id="gymModeBtn" type="button"><b>GYM MODE</b><small>ENTER TRAINING</small></button><button class="btn primary" id="editBtn">EDIT HUD</button><details class="data-menu" id="dataMenu"><summary class="btn">DATA</summary><div class="data-menu-popover"><button class="btn" id="exportBtn">EXPORT SAVE</button><button class="btn" id="importBtn">IMPORT SAVE</button><button class="btn primary wide" id="aiHandoffBtn">AI HANDOFF</button><button class="btn wide" id="readableReportBtn">EXPORT READABLE REPORT</button><button class="btn wide" id="checkInBtn">CONDITION CHECK-IN</button><button class="btn wide" id="aiUpdateBtn">IMPORT AI UPDATE</button><button class="btn danger wide" id="undoAiBtn">UNDO LAST AI UPDATE</button></div></details><button class="btn" id="motionBtn" title="Toggle subtle HUD ambience">MOTION: ON</button><button class="btn" id="fitBtn" title="Automatically fit the entire HUD to an ultrawide screen">ULTRAWIDE: AUTO</button><button class="btn ghost" id="fullscreenBtn">FULLSCREEN + FIT</button><input type="file" id="importFile" accept="application/json" hidden /><input type="file" id="aiUpdateFile" accept="application/json" hidden /></div>
+    <nav class="quick-actions" aria-label="Primary screens"><button class="btn top-nav-btn active" type="button" data-hud-screen="hud" aria-current="page">HUD</button><button class="btn top-nav-btn" type="button" data-hud-screen="grinds">GRINDS</button><button class="btn top-nav-btn gym-launch" id="gymModeBtn" type="button"><b>GYM</b><small>MODE</small></button><details class="data-menu" id="dataMenu"><summary class="btn top-nav-btn">DATA</summary><div class="data-menu-popover"><button class="btn" id="exportBtn">EXPORT SAVE</button><button class="btn" id="importBtn">IMPORT SAVE</button><button class="btn primary wide" id="aiHandoffBtn">AI HANDOFF</button><button class="btn wide" id="readableReportBtn">EXPORT READABLE REPORT</button><button class="btn wide" id="checkInBtn">CONDITION CHECK-IN</button><button class="btn wide" id="aiUpdateBtn">IMPORT AI UPDATE</button><button class="btn danger wide" id="undoAiBtn">UNDO LAST AI UPDATE</button></div></details><details class="data-menu more-menu" id="moreMenu"><summary class="btn top-nav-btn">MORE</summary><div class="data-menu-popover more-menu-popover"><button class="btn wide" id="editBtn">MANAGE HUD</button><button class="btn wide" id="densityBtn" type="button">HUD DENSITY: COMFORTABLE</button><button class="btn wide" id="motionBtn" title="Toggle subtle HUD ambience">MOTION: ON</button><button class="btn wide" id="fitBtn" title="Use controlled ultrawide spacing without shrinking text">ULTRAWIDE: AUTO</button><button class="btn ghost wide" id="fullscreenBtn">FULLSCREEN</button></div></details><input type="file" id="importFile" accept="application/json" hidden /><input type="file" id="aiUpdateFile" accept="application/json" hidden /></nav>
   </section>
 
   <main class="dashboard">
@@ -295,9 +295,11 @@ body.ultrawide-mode .fit-indicator{border-color:#3fcaf7;background:#0d3b50;color
   <footer class="footer">Game rule: remove friction · build systems · complete missions · level up · change the game</footer>
 </div>
 
-<nav class="mobile-menu" id="mobileMenu" aria-label="Primary progression">
-  <button type="button" data-primary-tab-mirror="missions" class="active"><span aria-hidden="true">M</span>Missions</button>
-  <button type="button" data-primary-tab-mirror="grinds"><span aria-hidden="true">G</span>Grinds</button>
+<nav class="mobile-menu" id="mobileMenu" aria-label="Primary screens">
+  <button type="button" data-hud-screen="hud" class="active" aria-current="page"><span aria-hidden="true">H</span>HUD</button>
+  <button type="button" data-hud-screen="grinds"><span aria-hidden="true">G</span>Grinds</button>
+  <button type="button" data-hud-action="gym"><span aria-hidden="true">+</span>Gym</button>
+  <button type="button" data-hud-action="data"><span aria-hidden="true">D</span>Data</button>
 </nav>
 
 <div class="modal-backdrop" id="editModal">
@@ -551,40 +553,11 @@ function applyScreenFit(){
   clearTimeout(fitTimer);
   fitTimer=setTimeout(()=>{
     const app=document.querySelector('.app');
-    if(!shouldFit()){
-      clearFit();
-      updateFitButton();
-      return;
-    }
-    document.body.classList.add('ultrawide-mode');
-    app.style.zoom='1';
-    app.style.width=window.innerWidth+'px';
-    app.style.minHeight='0';
-
-    // Iteratively solve for a width/zoom combination that keeps every panel
-    // visible while using the full 21:9 / 5K2K canvas.
-    let scale=1;
-    for(let i=0;i<5;i++){
-      app.style.zoom='1';
-      app.style.width=(window.innerWidth/scale)+'px';
-      const naturalHeight=app.scrollHeight;
-      const target=(window.innerHeight-2)/Math.max(1,naturalHeight);
-      scale=Math.max(.72,Math.min(1.85,target));
-    }
-    app.style.width=(window.innerWidth/scale)+'px';
-    app.style.zoom=String(scale);
-
-    // A final correction protects against browser rounding and font reflow.
-    requestAnimationFrame(()=>{
-      const rect=app.getBoundingClientRect();
-      if(rect.height>window.innerHeight&&rect.height>0){
-        scale*=window.innerHeight/rect.height;
-        scale=Math.max(.68,Math.min(1.85,scale));
-        app.style.width=(window.innerWidth/scale)+'px';
-        app.style.zoom=String(scale);
-      }
-      updateFitButton();
-    });
+    document.body.classList.toggle('ultrawide-mode',shouldFit());
+    app.style.zoom='';
+    app.style.width='';
+    app.style.minHeight='';
+    updateFitButton();
   },40);
 }
 fitBtn.onclick=()=>{
