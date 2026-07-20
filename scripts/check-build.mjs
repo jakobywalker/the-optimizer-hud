@@ -1,19 +1,19 @@
 import { existsSync, readFileSync } from "node:fs";
 
-const required = ["dist/index.html", "dist/sync.js", "dist/hud-core.js", "dist/ai-workflow.js", "dist/progression-engine.js", "dist/audio-manager.js", "dist/engagement-engine.js", "dist/gym-engine.js", "dist/progression-ui.js", "dist/engagement-ui.js", "dist/gym-ui.js", "dist/assets/audio/README.md"];
+const required = ["dist/index.html", "dist/sync.js", "dist/hud-core.js", "dist/ai-workflow.js", "dist/progression-engine.js", "dist/audio-manager.js", "dist/engagement-engine.js", "dist/gym-engine.js", "dist/grind-engine.js", "dist/progression-ui.js", "dist/engagement-ui.js", "dist/gym-ui.js", "dist/grind-ui.js", "dist/assets/audio/README.md"];
 for (const path of required) {
   if (!existsSync(path)) throw new Error(`Build output is missing ${path}`);
 }
 
 const html = readFileSync("dist/index.html", "utf8");
-for (const script of ["progression-engine.js", "audio-manager.js", "engagement-engine.js", "gym-engine.js", "hud-core.js", "ai-workflow.js", "progression-ui.js", "engagement-ui.js", "gym-ui.js", "/sync.js"]) {
+for (const script of ["progression-engine.js", "audio-manager.js", "engagement-engine.js", "gym-engine.js", "grind-engine.js", "hud-core.js", "ai-workflow.js", "progression-ui.js", "engagement-ui.js", "gym-ui.js", "grind-ui.js", "/sync.js"]) {
   const matches = html.split(`src="${script}"`).length - 1;
   if (matches !== 1) throw new Error(`Expected one ${script} reference in dist/index.html, found ${matches}`);
 }
 if (!html.includes("@supabase/supabase-js@2.110.6")) throw new Error("Production build is missing the pinned Supabase browser client");
 if (/service[_-]?role|SUPABASE_SERVICE_ROLE_KEY/i.test(html)) throw new Error("Production HTML appears to contain a private Supabase secret");
 
-for (const path of ["dist/sync.js", "dist/hud-core.js", "dist/ai-workflow.js", "dist/progression-engine.js", "dist/audio-manager.js", "dist/engagement-engine.js", "dist/gym-engine.js", "dist/progression-ui.js", "dist/engagement-ui.js", "dist/gym-ui.js"]) {
+for (const path of ["dist/sync.js", "dist/hud-core.js", "dist/ai-workflow.js", "dist/progression-engine.js", "dist/audio-manager.js", "dist/engagement-engine.js", "dist/gym-engine.js", "dist/grind-engine.js", "dist/progression-ui.js", "dist/engagement-ui.js", "dist/gym-ui.js"]) {
   const source = readFileSync(path, "utf8");
   try {
     Function(source);

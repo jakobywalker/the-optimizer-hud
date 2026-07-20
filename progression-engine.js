@@ -55,7 +55,9 @@ function normalizeRewards(v,label=""){
  const s=v&&typeof v==="object"&&!Array.isArray(v)?v:{};
  const progression=(Array.isArray(s.progression)?s.progression:[]).map(x=>{const n=integer(x?.amount,NaN);return x&&Number.isFinite(n)&&n>=0&&n<=MAX_XP?{targetType:clean(x.targetType||"skill"),targetId:clean(x.targetId),amount:n}:null}).filter(x=>x?.targetId);
  const achievements=(Array.isArray(s.achievements)?s.achievements:[{achievementId:"mission-complete"}]).map(x=>({achievementId:clean(typeof x==="string"?x:x?.achievementId)})).filter(x=>x.achievementId);
- return{playerXp:Math.max(0,Math.min(MAX_XP,integer(s.playerXp,0))),progression,achievements,legacyLabel:clean(s.legacyLabel||label)}
+ const currencies=(Array.isArray(s.currencies)?s.currencies:[]).map(x=>{const n=Number(x?.amount);return x&&clean(x.currencyId)&&Number.isFinite(n)&&n>=0&&n<=MAX_XP?{currencyId:clean(x.currencyId),amount:Math.round(n*100)/100}:null}).filter(Boolean);
+ const titles=[...new Set((Array.isArray(s.titles)?s.titles:[]).map(x=>clean(typeof x==="string"?x:x?.titleId)).filter(Boolean))],cosmetics=[...new Set((Array.isArray(s.cosmetics)?s.cosmetics:[]).map(x=>clean(typeof x==="string"?x:x?.cosmeticId)).filter(Boolean))];
+ return{playerXp:Math.max(0,Math.min(MAX_XP,integer(s.playerXp,0))),progression,currencies,titles,cosmetics,achievements,legacyLabel:clean(s.legacyLabel||label)}
 }
 function normalizeMission(m,opt={}){
  const s=m&&typeof m==="object"?m:{},f=opt.idFactory||makeId,now=iso(opt.now),defaults=MISSION_DEFAULTS[clean(s.name).toLowerCase()]||null;

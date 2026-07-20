@@ -1,10 +1,10 @@
-# Progression and Engagement Engine
+# Progression, Engagement, and Grind Transactions
 
-## Schema v5
+## Schema v6
 
-App version 1.4.0 uses state schema 5. Migration is idempotent and runs for local storage, imported saves, cloud hydration, realtime snapshots, and conflict snapshots. It preserves personalized values, mission history, checked habits, custom habits, and legacy bottleneck text.
+App version 1.5.0 uses state schema 6. Migration is idempotent and runs for local storage, imported saves, cloud hydration, realtime snapshots, and conflict snapshots. It preserves personalized values, mission history, checked habits, custom habits, and legacy bottleneck text.
 
-Schema v5 includes all schema v4 behavior and adds:
+Schema 6 retains all earlier behavior and adds:
 
 - `state.engagement.version`
 - Seven standard habits with stable IDs, structured rewards, and `rewardVersion`
@@ -16,6 +16,9 @@ Schema v5 includes all schema v4 behavior and adds:
 - state.gym protocol templates, one active session, completed session snapshots, variation history, Gym settings, achievements, and challenges
 - Canonical workout-completion reward transactions and result replay snapshots
 - Gym-aware AI handoffs, AI update validation, and cloud conflict merging
+- `state.grind` activities, sessions, contracts, campaigns, reward tables, currencies, mastery, revenue events, recommendations, and unlock targets
+- Currency, title, and cosmetic fields preserved in canonical progression transaction rewards
+- Gym-to-contract and Gym-to-habit deduplication, including the five-protocol cycle reward
 
 Checked legacy habit cells receive a claim marker without a fabricated XP transaction. This prevents retroactive rewards and uncheck/recheck farming while preserving visible history.
 
@@ -100,6 +103,23 @@ The compact five-stage presentation covers pressure break, resolution source, re
 
 Mission claims remain claim-once transactions from Progression Engine v1. The transaction is saved before the cinematic. `rewardReveal` now accompanies reward rows and `xpGain` accompanies progression application.
 
+## Grind reward integration
+
+Grind activities, contracts, campaign milestones, campaign bosses, Gym runs, and Gym cycles use `createRewardTransaction()` before writing their linked virtual-currency entries. The progression transaction retains `currencies`, `titles`, and `cosmetics` for audit, but progression rebuild applies XP only. Currency balances rebuild independently from the append-only Grind ledger.
+
+Representative keys:
+
+```text
+activity:<sessionId>:completion:reward-v1
+contract:<runId>:completion:reward-v1
+campaign:<campaignId>:milestone:<chapterId>:reward-v1
+campaign:<campaignId>:completion:reward-v1
+gym-cycle:<cycleNumber>:reward-v1
+```
+
+Ranged tables are deterministic for the claim key. A replay reads the stored transaction and never resolves a new range.
+
+Completing a Gym workout through core records one completed Gym contract run, applies the transaction's 30 Optimizer Credits once, advances Fitness mastery and the five-protocol cycle, and satisfies the current Gym habit without its separate habit XP. If this completes all seven habits, the independent daily-clear transaction may still apply.
 ## Cloud and import reconciliation
 
 Both snapshots migrate before merge. Transactions are deduplicated by ID and then reduced to one canonical applied record per `idempotencyKey`. Progression is rebuilt from the baseline. Level-ups and achievements tied to discarded duplicate transactions are removed.
@@ -120,7 +140,7 @@ Resolved bottlenecks and claimed transaction history are immutable. AI operation
 
 ## Extending progression
 
-Future gym, challenge, streak, or AI-review systems should define a stable source ID, reward version, source snapshot, and globally unique idempotency key, then call `createRewardTransaction()`. New sounds should be registered in `SOUND_CATALOG`, assigned a category, given a short cooldown/duration, mapped to an optional custom file, and provided with an original synthesized fallback.
+Future activity, contract, campaign, challenge, streak, or AI-review systems should define a stable source ID, reward version, source snapshot, and globally unique idempotency key, then call `createRewardTransaction()`. New sounds should be registered in `SOUND_CATALOG`, assigned a category, given a short cooldown/duration, mapped to an optional custom file, and provided with an original synthesized fallback.
 
 Do not add casual direct XP mutation or reuse another system's claim key.
 
@@ -131,4 +151,4 @@ npm.cmd test
 npm.cmd run check
 ```
 
-The suites cover schema migration, custom habit preservation, exact rewards, daily clears, E-flat steps, cloud deduplication, bottleneck resolution/replay/immutability, AI compatibility, audio tiers/fallbacks, queue ordering, mission progression, production output, and legacy behavior.
+The suites cover schema 6 migration, Grind economy safety, custom habit preservation, exact rewards, daily clears, E-flat steps, cloud deduplication, bottleneck resolution/replay/immutability, AI compatibility, audio tiers/fallbacks, queue ordering, mission progression, production output, and legacy behavior.

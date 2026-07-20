@@ -1,6 +1,6 @@
 # Gym Mode
 
-Gym Mode is the Optimizer HUD training minigame introduced in app version `1.4.0` and state schema `5`. It runs inside the existing vanilla HTML, CSS, and JavaScript application and uses the same local persistence, Supabase realtime synchronization, progression transactions, achievements, presentation queue, AI workflow, and audio manager.
+Gym Mode is the Optimizer HUD training minigame introduced in app version `1.4.0` and integrated with the Grind Engine in app version `1.5.0` and state schema `6`. It runs inside the existing vanilla HTML, CSS, and JavaScript application and uses the same local persistence, Supabase realtime synchronization, progression transactions, achievements, presentation queue, AI workflow, and audio manager.
 
 ## Protocol rotation
 
@@ -45,7 +45,7 @@ Gym data lives at `state.gym`:
     defaultRestSeconds: 120,
     soundEnabled: true
   },
-  recommendedProtocolId: "protocol-1",
+  recommendedProtocolId: "protocol-2",
   lastCompletedProtocolId: null,
   protocols: [],
   activeSession: null,
@@ -87,6 +87,10 @@ workout:<sessionId>:completion:reward-v1
 The base is +20 Player XP and +20 Fitness XP. Additions come from completed required exercises, score thresholds, valid PRs, optional finishers, and A/S grades. Fitness XP and Player XP are capped at sensible limits.
 
 Rewards are written before the training-results presentation starts. Reopening the site, replaying results, merging cloud state, or retrying finalization cannot duplicate the transaction.
+
+A newly completed protocol also records one repeatable Grind contract run and pays 30 Optimizer Credits from the same canonical workout transaction. It satisfies the dated `gym-train` habit without claiming that habit's separate XP. Existing imported Gym sessions migrate into historical contract runs without retroactive rewards.
+
+Completing all five unique protocols in any order clears one Grind cycle: +75 Player XP, +150 Fitness XP, and +2 Mastery Tokens. The cycle then resets. The rotation has no weekday binding.
 
 ## Personal records
 
@@ -134,6 +138,20 @@ AI handoffs include active workout context, completed sessions, protocol templat
 
 AI updates cannot edit completed sets, workout history, PR records, scores, or applied reward transactions.
 
+## Grind integration
+
+`OptimizerHudCore.finishGymWorkout()` is the canonical finalization route. It calls the Gym scorer and progression transaction first, then:
+
+1. Records the completed repeatable protocol contract.
+2. Applies the transaction's Optimizer Credits once.
+3. Advances Fitness mastery.
+4. Advances the unique-protocol cycle.
+5. Satisfies the dated Gym habit without its separate habit reward.
+6. Refreshes recommendations and unlock-linked board state.
+
+`OptimizerGrindEngine.reconcileGymState()` links old completed sessions during migration and cloud hydration in historical mode. Historical mode does not fabricate XP, currency, mastery, streaks, cycle progress, sounds, or presentations.
+
+The initial advisory recommendation is Protocol 2 only when no saved recommendation exists. A personalized saved recommendation is preserved. After a completion, the normal numerical rotation remains advisory.
 ## Audio
 
 Gym Mode adds 21 named cues. Every cue has a custom WAV path, category, cooldown, duration, and synthesized fallback. Gym Mode's sound toggle gates these cues in addition to the global audio settings. Specialized interactions are marked so the generic click router does not layer another sound underneath.
@@ -148,4 +166,4 @@ Run:
 npm.cmd run check
 ```
 
-The Gym suite covers defaults, migration, variation isolation, validation, duplicate submissions, volume, editing, skipping, scoring, grades, rewards, idempotency, recommendation rotation, replay, PRs, template snapshots, cloud merging, and AI handoff output.
+The Gym and Grind suites cover defaults, migration, variation isolation, validation, duplicate submissions, volume, editing, skipping, scoring, grades, rewards, idempotency, recommendation rotation, replay, PRs, template snapshots, cloud merging, and AI handoff output.

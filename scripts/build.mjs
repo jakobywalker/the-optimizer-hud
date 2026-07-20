@@ -22,9 +22,11 @@ await Promise.all([
   copyFile("audio-manager.js", "dist/audio-manager.js"),
   copyFile("engagement-engine.js", "dist/engagement-engine.js"),
   copyFile("gym-engine.js", "dist/gym-engine.js"),
+  copyFile("grind-engine.js", "dist/grind-engine.js"),
   copyFile("progression-ui.js", "dist/progression-ui.js"),
   copyFile("engagement-ui.js", "dist/engagement-ui.js"),
   copyFile("gym-ui.js", "dist/gym-ui.js"),
+  copyFile("grind-ui.js", "dist/grind-ui.js"),
   cp("assets", "dist/assets", { recursive: true }),
 ]);
 

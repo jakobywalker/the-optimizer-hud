@@ -4,13 +4,13 @@ The Optimizer HUD keeps one versioned state object in local storage and, when si
 
 ## State schema
 
-Schema version 5 uses this metadata:
+Schema version 6 uses this metadata:
 
 ```json
 {
   "meta": {
-    "schemaVersion": 5,
-    "appVersion": "1.4.0",
+    "schemaVersion": 6,
+    "appVersion": "1.5.0",
     "createdAt": "2026-07-15T12:00:00.000Z",
     "updatedAt": "2026-07-15T12:00:00.000Z",
     "lastHandoffAt": null,
@@ -19,7 +19,7 @@ Schema version 5 uses this metadata:
 }
 ```
 
-The authoritative state also contains player progression, category tracks, reward transactions, level-ups, earned achievements, audio settings, top and character stats, the bottleneck, resources, the money ledger, main quest and stages, daily actions and priorities, buffs, debuffs, missions and tasks, skills, habits, home-base locations, party slots, notes, events, check-ins, handoff records, daily history, weekly history, and one rollback record.
+The authoritative state also contains player progression, category tracks, reward transactions, level-ups, earned achievements, audio settings, top and character stats, the bottleneck, resources, the money ledger, main quest and stages, daily actions and priorities, buffs, debuffs, missions and tasks, skills, habits, home-base locations, party slots, notes, events, check-ins, handoff records, daily history, weekly history, one rollback record, and the complete Grind state: goals, activities, immutable sessions, contracts and runs, campaigns, reward tables, currency ledgers, mastery, streaks, challenges, revenue events, allocations, unlocks, and recommendations.
 
 ### Migration behavior
 
@@ -107,8 +107,24 @@ An update file uses:
 
 Supported operations are `add`, `update`, `complete`, `reopen`, `archive`, and `remove`. Engagement-aware entity types include `bottleneck`, `habit`, `habitReward`, and `bottleneckReward` in addition to the existing stat, quest, mission, daily, resource, money, progression, and note targets.
 
-Gym-aware types are gymProtocol, gymExercise, gymSettings, and gymChallenge. AI may update future-session templates and settings or add a challenge. Completed sets, workout snapshots, scores, PRs, reward transactions, and workout achievements remain immutable history.
+Gym-aware types are `gymProtocol`, `gymExercise`, `gymSettings`, and `gymChallenge`. AI may update future-session templates and settings or add a challenge. Completed sets, workout snapshots, scores, PRs, reward transactions, and workout achievements remain immutable history.
 
+### Grind-aware operations
+
+Safe content entity types are:
+
+- `grindGoal`
+- `grindActivity`
+- `grindContract`
+- `grindCampaign`
+- `grindRewardTable`
+- `grindCurrency`
+- `grindChallenge`
+- `grindUnlock`
+
+An approved patch may add an object, edit a safe top-level content field, or archive uncompleted content. It may not set progress, status, completion timestamps, transaction links, revenue events, Revenue Credits, allocations, action completion, eligibility, or purchases. It may not mutate activity sessions, contract runs, currency ledger entries, or completed campaign history.
+
+The AI handoff includes recommendations with reasons, current campaign chapters, completed sessions and runs since the prior handoff, all currency balances, recent ledger entries, revenue-event status, unlock evaluations, and near-completion items. This supports planning without allowing the AI to assert that work, revenue, or a purchase occurred.
 ### Operation rules
 
 - `update` uses a path relative to the resolved entity, such as `value`, `title`, `description`, or `values.2`.
@@ -202,8 +218,10 @@ Realtime sync retains the existing optimistic revision architecture. On a remote
 - Bottleneck objects by stable ID, with canonical resolution transactions forcing resolved state
 - Level-up and achievement records by record ID, filtered to canonical transactions
 - Gym sessions by session ID, active sets by set ID, and protocol templates by stable protocol/exercise IDs
+- Grind sessions, contract runs, revenue events, allocations, and unlock history by stable ID
+- Grind currency entries by idempotency key, with verified and purchased history preserved over older mutable copies
 
-Merged histories are sorted chronologically and deduplicated. No Supabase schema or Vercel environment change is required for schema version 5 because the complete state remains in the existing JSONB snapshot. Progression is rebuilt from its baseline and canonical transactions after a conflict merge.
+Merged histories are sorted chronologically and deduplicated. No Supabase table or Vercel environment change is required for schema version 6 because the complete state remains in the existing JSONB snapshot. Progression is rebuilt from its baseline and canonical transactions after a conflict merge.
 
 ## Validation
 

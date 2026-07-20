@@ -65,6 +65,24 @@ Gym Mode:
 
 Each Gym cue has a synthesized fallback. The Gym sound toggle gates these cues before the global master and category volumes are applied. One specialized action plays one dominant sound; generic click audio is suppressed inside Gym Mode.
 
+Grind Engine:
+
+- `assets/audio/grind-start.wav`
+- `assets/audio/grind-complete.wav`
+- `assets/audio/contract-start.wav`
+- `assets/audio/contract-complete.wav`
+- `assets/audio/campaign-milestone.wav`
+- `assets/audio/boss-complete.wav`
+- `assets/audio/currency-gain.wav`
+- `assets/audio/mastery-token.wav`
+- `assets/audio/unlock-key.wav`
+- `assets/audio/revenue-event.wav`
+- `assets/audio/unlock-progress.wav`
+- `assets/audio/real-world-unlock.wav`
+- `assets/audio/streak-advance.wav`
+- `assets/audio/mastery-level-up.wav`
+
+Every Grind cue has a synthesized fallback. Farming uses short progress cues; contracts and milestones use compact completion cues; boss and real-world unlock confirmation use the longest cinematic tier. Reduced motion does not disable audio, but the global sound toggle does.
 Optional numbered habit notes:
 
 - `assets/audio/habit-step-1.wav`
@@ -81,7 +99,7 @@ Keep files short, normalized conservatively, and free of long reverb tails. The 
 
 ## Extension guidance
 
-1. Add a future gym, challenge, streak, or seasonal event to `SOUND_CATALOG` with a category, cooldown, and duration.
+1. Add a future Grind, gym, challenge, streak, or seasonal event to `SOUND_CATALOG` with a category, cooldown, and duration.
 2. Add its optional path to `CUSTOM_AUDIO_FILES`.
 3. Add a distinct synthesized fallback in `playSynth()`.
 4. Route it from the primary interaction so the generic click router does not also fire.

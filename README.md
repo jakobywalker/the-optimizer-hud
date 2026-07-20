@@ -8,7 +8,7 @@ Production: [the-optimizer-hud.vercel.app](https://the-optimizer-hud.vercel.app)
 
 - Tracks daily systems, weekly habits, missions, quest stages, skills, home-base status, and an immutable money ledger.
 - Synchronizes one authenticated HUD across desktop and mobile through Supabase realtime.
-- Migrates older personalized saves to schema v5 without resetting progress.
+- Migrates older personalized saves to schema v6 without resetting progress.
 - Turns mission, habit, daily-clear, and bottleneck completion into claim-once progression transactions and queued summaries.
 - Levels the player, core stats, attributes, and skills with a fixed 100 XP rule and overflow.
 - Stores level-ups, repeatable mission/bottleneck achievements, completion events, claim markers, and replayable reward summaries.
@@ -26,6 +26,15 @@ npm.cmd run build
 
 `npm run check` validates source assets and script order, runs the behavior and progression suites, builds `dist/`, and validates production output. The source `index.html` can be opened directly for local UI work, but cloud sync requires the Vercel API route and Supabase environment variables.
 
+## Grind Board and Unlock Engine
+
+The Grind Board is now the primary progression surface. It ranks the next best verified activity, shows the current Subject to Change campaign, available grinds, active contracts, near-completion items, four separate currency balances, and real-world unlock progress before the legacy diagnostic panels.
+
+The expanded command deck provides focused activity sessions, measurable grading, repeatable contracts, explicit campaign milestones and boss completion, mastery and streak tracking, immutable replays, and data-driven content management. The initial content pack covers music, fitness, and revenue-system work, while the engine accepts new domains without a rewrite.
+
+The Unlock Vault keeps financial progress grounded. Optimizer Credits, Mastery Tokens, and Unlock Keys are virtual. Revenue Credits come only from manually verified realized revenue events. Tasks never create Revenue Credits, purchases are never automatic, and unlock eligibility enforces coverage, protected cash, and action requirements.
+
+See [docs/GRIND-ENGINE.md](docs/GRIND-ENGINE.md), [docs/REWARD-ECONOMY.md](docs/REWARD-ECONOMY.md), [docs/UNLOCK-VAULT.md](docs/UNLOCK-VAULT.md), and [docs/CAMPAIGNS.md](docs/CAMPAIGNS.md).
 ## Gym Mode
 
 GYM MODE opens a dedicated full-screen training minigame with five repeatable protocols, persistent set logging, variation-isolated history, rest timers, four-part scoring, grades, PRs, claim-once rewards, achievements, editable templates, and replayable cinematic results. Active workouts save after every interaction and synchronize through the existing Supabase realtime path, so desktop and mobile continue the same session.
@@ -38,7 +47,7 @@ See [docs/GYM-MODE.md](docs/GYM-MODE.md) for protocol behavior, state, scoring, 
 
 Every progression track has a stable ID, name, type, level, current XP, and `xpRequired: 100`. Reaching 100 XP increments the level, subtracts 100 XP, and carries all overflow. A single reward can grant multiple levels.
 
-The player track lives at `state.player`. Category tracks live in `state.progression.tracks`. `state.progression.baseline` is the immutable migration/rebuild anchor used to replay merged transactions safely. Existing percentage values seed Level 1 XP the first time schema v5 migrates a save.
+The player track lives at `state.player`. Category tracks live in `state.progression.tracks`. `state.progression.baseline` is the immutable migration/rebuild anchor used to replay merged transactions safely. Existing percentage values seed Level 1 XP the first time schema 6 migrates a save.
 
 Mission rewards are structured:
 
@@ -82,7 +91,7 @@ The sequence:
 
 ## Habits and daily clear
 
-Schema v5 installs seven stable standard habits while preserving custom habits and all checked history: Gym / Train, 8k Steps, Sleep 7+ Hours, Main Quest Work, No Social Media AM, Content Made, and Content Released. Each first completion for a calendar date grants its configured structured progression reward once.
+Schema 6 retains seven stable standard habits while preserving custom habits and all checked history: Gym / Train, 8k Steps, Sleep 7+ Hours, Main Quest Work, No Social Media AM, Content Made, and Content Released. Each first completion for a calendar date grants its configured structured progression reward once.
 
 Habit sound pitch comes from the completed count for that date, not row order. The E-flat frequencies are `311.13`, `349.23`, `392`, `466.16`, `523.25`, `622.25`, and `783.99` Hz. This stays ascending when habits are completed out of order.
 
@@ -97,6 +106,8 @@ The default resolution grants +40 Player XP, +35 Alignment XP, +25 Clarity XP, +
 ## Audio Manager v2
 
 The complete event catalog is: `missionComplete`, `rewardReveal`, `xpGain`, `levelUp`, `playerLevelUp`, `achievement`, `buttonConfirm`, `error`, `uiClick`, `toggleOn`, `toggleOff`, `panelOpen`, `panelClose`, `taskComplete`, `taskReopen`, `dailyComplete`, `habitStep`, `habitDayComplete`, `questAdvance`, `bottleneckResolved`, and `bottleneckReward`.
+
+Grind language adds `grindStart`, `grindComplete`, `contractStart`, `contractComplete`, `campaignMilestone`, `bossComplete`, `currencyGain`, `masteryToken`, `unlockKey`, `revenueEvent`, `unlockProgress`, `realWorldUnlock`, `streakAdvance`, and `masteryLevelUp`.
 
 Sounds are tiered into UI, progress, and cinematic categories. Synchronized settings include `enabled`, master `volume`, `uiVolume`, `progressVolume`, and `cinematicVolume`. Sound tests are available in DATA > SOUND SETTINGS.
 
@@ -124,13 +135,13 @@ Apply `supabase/schema.sql`, then configure Vercel with:
 - `SUPABASE_URL`
 - `SUPABASE_PUBLISHABLE_KEY`
 
-No schema or environment-variable change is required for progression v1.
+No Supabase table or environment-variable change is required for schema 6 because Grind data remains inside the existing user-scoped JSONB state.
 
 ## Migration and import safety
 
 `OptimizerHudCore.migrateState()` runs for local storage, full-save imports, cloud hydration, realtime snapshots, and conflict snapshots. It is idempotent and tolerant of missing optional fields.
 
-Schema v5:
+Schema 6:
 
 - Preserves existing player level and converts legacy player XP/goal into progress toward the next 100 XP level.
 - Converts old percentage stats to Level 1 track XP.
@@ -159,7 +170,7 @@ The private GitHub repository is connected to Vercel with `main` as the producti
 - `hud-core.js` contains shared state migration, events, rollovers, handoffs, AI patches, rollback, and cloud-history merging.
 - `ai-workflow.js` contains check-in, handoff export, update preview, approval, and rollback UI.
 - `sync.js` adds authentication, durable cloud saves, offline recovery, realtime updates, and optimistic revisions.
-- `scripts/test-hud.mjs`, `scripts/test-progression.mjs`, and `scripts/test-engagement.mjs` provide lightweight behavior coverage.
+- `scripts/test-hud.mjs`, `scripts/test-progression.mjs`, `scripts/test-engagement.mjs`, `scripts/test-gym.mjs`, and `scripts/test-grind.mjs` provide behavior and regression coverage.
 - `scripts/build.mjs`, `scripts/check.mjs`, and `scripts/check-build.mjs` validate and assemble production output.
 - `supabase/schema.sql` defines the existing user-scoped JSONB state and realtime policies.
 
