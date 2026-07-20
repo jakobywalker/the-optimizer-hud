@@ -79,6 +79,8 @@ The `DATA` menu provides `CONDITION CHECK-IN` and an optional check-in step duri
 - A unique `exportId` and timestamp
 - Previous handoff ID and timestamp
 - Calculated summaries
+- A finite `missions` summary with campaigns, active missions, near-complete missions, recent completions, and history
+- A repeatable `grind` summary with recommendations, available activities, active contracts, mastery, streaks, Gym recommendation, verified sessions, currencies, and unlocks
 - Latest condition check-in
 - Events since the previous handoff
 - Complete authoritative current state
@@ -124,7 +126,7 @@ Safe content entity types are:
 
 An approved patch may add an object, edit a safe top-level content field, or archive uncompleted content. It may not set progress, status, completion timestamps, transaction links, revenue events, Revenue Credits, allocations, action completion, eligibility, or purchases. It may not mutate activity sessions, contract runs, currency ledger entries, or completed campaign history.
 
-The AI handoff includes recommendations with reasons, current campaign chapters, completed sessions and runs since the prior handoff, all currency balances, recent ledger entries, revenue-event status, unlock evaluations, and near-completion items. This supports planning without allowing the AI to assert that work, revenue, or a purchase occurred.
+The JSON handoff exposes separate top-level `missions` and `grind` summaries and mirrors them under `summary`. The readable report renders separate `## Missions` and `## Grinds` sections. Campaign chapters and finite mission status never need to be inferred from repeatable activity history, while Grind recommendations, contracts, mastery, streaks, Gym recommendation, currency balances, revenue events, and unlock evaluations stay grouped together. This supports planning without allowing the AI to assert that work, revenue, or a purchase occurred.
 ### Operation rules
 
 - `update` uses a path relative to the resolved entity, such as `value`, `title`, `description`, or `values.2`.

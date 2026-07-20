@@ -6,6 +6,8 @@ if (!existsSync(htmlPath)) {
 }
 
 const html = readFileSync(htmlPath, "utf8");
+const grindUi = readFileSync("grind-ui.js", "utf8");
+const grindEngine = readFileSync("grind-engine.js", "utf8");
 if (!/^<!doctype html>/i.test(html.trimStart()) || !/<\/html>\s*$/i.test(html)) {
   throw new Error("index.html is not a complete HTML document");
 }
@@ -25,6 +27,20 @@ for (const runtimeScript of runtimeScripts) {
 }
 if (!html.includes("core.completeMission(state,m.id") || !html.includes("OptimizerProgressionUI?.enqueue")) {
   throw new Error("Mission completion must persist rewards before presentation");
+}
+const primaryTabs = [...grindUi.matchAll(/data-primary-tab="(missions|grinds)"/g)].map((match) => match[1]);
+if (primaryTabs.join(",") !== "missions,grinds") {
+  throw new Error("Primary progression must expose exactly Missions and Grinds");
+}
+if ((html.match(/data-primary-tab-mirror=/g) || []).length !== 2 || html.includes("data-mobile-tab=")) {
+  throw new Error("Mobile progression must mirror only Missions and Grinds");
+}
+const tabSelection = grindUi.match(/function selectPrimaryTab[\s\S]*?function renderBoard/)?.[0] || "";
+if (!grindUi.includes('value==="grinds"?"grinds":"missions"') || !grindUi.includes('catch{return"missions"}') || !tabSelection.includes("localStorage.setItem") || /saveState|recordEvent|grantReward|createRewardTransaction/.test(tabSelection)) {
+  throw new Error("Primary tab switching must be a local-only UI preference");
+}
+if (!grindUi.includes("data-enter-gym-mode") || !grindUi.includes("Mission History") || !grindEngine.includes("function getPrimaryProgressionSurface")) {
+  throw new Error("Progression surface integration is incomplete");
 }
 const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
 if (!scripts.length) {

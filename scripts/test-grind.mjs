@@ -64,7 +64,36 @@ test("historical Gym reconciliation creates no XP or currency",()=>{const s=stat
 test("AI can add Grind content but cannot fabricate progress",()=>{const s=state();const patch={format:"optimizer-ai-update",schemaVersion:"1.0",updateId:"grind-ai",operations:[{id:"add",operation:"add",entityType:"grindActivity",value:{id:"ai-learning",name:"AI Learning",domain:"learning"}},{id:"fake",operation:"update",entityType:"grindCampaign",entityId:"campaign-subject-to-change",path:"progress",value:100}]},validation=core.validateAiUpdate(s,patch);assert.equal(validation.valid.length,1);assert.equal(validation.unresolved.length,1);core.applyAiUpdate(s,validation,undefined,{idFactory:ids("ai")});assert.ok(s.grind.activities.find(x=>x.id==="ai-learning"))});
 test("cloud merge deduplicates immutable records and financial ledger keys",()=>{const local=state("local"),remote=core.clone(local);completeActivity(local,"activity-songwriting",{},"cloud-session");const event=grind.addRevenueEvent(remote,{id:"cloud-revenue",amount:75,source:"Cloud"});grind.verifyRevenueEvent(remote,event.id);const merged=core.mergeCloudState(local,remote);assert.equal(merged.grind.activitySessions.filter(x=>x.id==="cloud-session-session").length,1);assert.equal(grind.currencyBalance(merged,"revenue-credits"),75)});
 test("cloud merge collapses cross-device currency and allocation ids by idempotency key",()=>{const local=state("merge-local"),remote=core.clone(local);grind.appendCurrency(local,{id:"local-ledger",idempotencyKey:"shared-credit",currencyId:"revenue-credits",amount:100});grind.appendCurrency(remote,{id:"remote-ledger",idempotencyKey:"shared-credit",currencyId:"revenue-credits",amount:100});const unlock=grind.createUnlock(local,{id:"merge-unlock",name:"Merge Unlock",price:100,coverageMultiplier:1});grind.createUnlock(remote,{id:"merge-unlock",name:"Merge Unlock",price:100,coverageMultiplier:1});grind.allocateRevenue(local,unlock.id,50,{idFactory:()=>"local-allocation",idempotencyKey:"shared-allocation"});grind.allocateRevenue(remote,unlock.id,50,{idFactory:()=>"remote-allocation",idempotencyKey:"shared-allocation"});const merged=core.mergeCloudState(local,remote);assert.equal(merged.grind.currencyLedger.filter(x=>x.idempotencyKey==="shared-credit").length,1);assert.equal(merged.grind.unlockAllocations.filter(x=>x.idempotencyKey==="shared-allocation").length,1);assert.equal(grind.currencyBalance(merged,"revenue-credits"),100);assert.equal(grind.evaluateUnlock(merged,unlock.id).allocatedRevenue,50)});
-test("handoff exports recommendations, ledger, campaigns, and unlock state",()=>{const s=state(),summary=grind.handoff(s);assert.ok(summary.recommended.length);assert.ok(summary.campaigns.length);assert.ok(summary.currencyBalances);const handoff=core.buildHandoff(s,{idFactory:ids("handoff")});assert.ok(handoff.grind);assert.match(core.handoffToMarkdown(handoff),/Grind and Unlock Engine/)});
+test("classifies finite Missions and repeatable Grinds through one selector",()=>{
+ const finite=[{name:"Subject to Change",chapters:[]},{name:"Restore Yard Access & Equipment"}];
+ const repeatable=["Focused Writing","Vocal Recording","Performance Rehearsal","Content Production","Content Release","Revenue Outreach","Opportunity Applications","Pipeline Advancement","Paid Work Delivery","8,000 Steps","Sleep 7+ Hours"];
+ assert.equal(grind.getPrimaryProgressionSurface({...finite[0]},"campaign"),"missions");
+ assert.equal(grind.getPrimaryProgressionSurface(finite[1],"mission"),"missions");
+ for(const name of repeatable)assert.equal(grind.getPrimaryProgressionSurface({name,repeatable:true},"activity"),"grinds",name);
+ assert.equal(grind.getPrimaryProgressionSurface({surfaceType:"missions",repeatable:true},"activity"),"missions");
+ assert.equal(grind.getPrimaryProgressionSurface({progressionSurface:"grinds"},"mission"),"grinds");
+});
+test("mission summaries keep completed and archived status out of active work",()=>{
+ const s=state();
+ s.missions=[
+  {id:"active",name:"Active",status:"active",tasks:[{completed:false}]},
+  {id:"complete",name:"Complete",status:"completed",completedAt:"2026-07-18T12:00:00Z",tasks:[{completed:true}]},
+  {id:"archive",name:"Archive",status:"archived",tasks:[{completed:false}]}
+ ];
+ const summary=grind.missionHandoff(s);
+ assert.deepEqual(summary.active.map(item=>item.id),["active"]);
+ assert.deepEqual(summary.history.map(item=>item.id),["complete","archive"]);
+});test("progression surface selectors are read-only",()=>{
+ const s=state(),before=JSON.stringify(s);
+ grind.missionHandoff(s);
+ grind.handoff(s);
+ grind.getPrimaryProgressionSurface(s.grind.activities[0],"activity");
+ assert.equal(JSON.stringify(s),before);
+ assert.equal(s.events.length,0);
+ assert.equal(s.rewardTransactions.length,0);
+ assert.equal(s.grind.currencyLedger.length,0);
+});
+test("handoff exports separate mission and Grind summaries",()=>{const s=state();s.bottleneck.items.push({id:"blocker",name:"Blocked route",description:"Clear access",status:"active"});completeActivity(s,"activity-songwriting",{},"handoff-work");const summary=grind.handoff(s),missions=grind.missionHandoff(s);assert.ok(summary.recommended.length);assert.ok(summary.rewardTransactions.length);assert.ok(missions.campaigns.length);assert.equal(missions.blockers.length,1);assert.ok(summary.currencyBalances);const handoff=core.buildHandoff(s,{idFactory:ids("handoff")}),markdown=core.handoffToMarkdown(handoff);assert.ok(handoff.missions);assert.ok(handoff.grind);assert.match(markdown,/## Missions/);assert.match(markdown,/Mission Blockers/);assert.match(markdown,/## Grinds/);assert.match(markdown,/Recent Grind Rewards/)});
 test("registers the complete Grind sound language",()=>{const names=["grindStart","grindComplete","contractStart","contractComplete","missionComplete","campaignMilestone","bossComplete","currencyGain","masteryToken","unlockKey","revenueEvent","unlockProgress","realWorldUnlock","streakAdvance","masteryLevelUp"];for(const name of names){assert.ok(globalThis.OptimizerAudio.SOUND_CATALOG[name],name);assert.match(globalThis.OptimizerAudio.CUSTOM_AUDIO_FILES[name],/^assets\/audio\/.+\.wav$/)}});
 
 let passed=0;

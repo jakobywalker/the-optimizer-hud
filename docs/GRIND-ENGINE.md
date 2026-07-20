@@ -2,7 +2,15 @@
 
 The Grind Engine is the data-driven progression layer introduced in app version `1.5.0` and state schema `6`. It turns verified real-world activity into replayable sessions, repeatable contracts, campaign milestones, virtual rewards, mastery, streaks, recommendations, and financially safe unlock planning.
 
-`grind-engine.js` contains rules and state transitions. `grind-ui.js` contains the primary Grind Board, focused session UI, contract registry, campaign controls, history, management tools, completion presentations, and Unlock Vault.
+`grind-engine.js` contains rules and state transitions. `grind-ui.js` contains the two-tab primary progression surface, focused session UI, contract registry, campaign controls, mission and Grind histories, management tools, completion presentations, and Unlock Vault.
+
+## Primary progression surfaces
+
+The normal daily HUD exposes exactly `MISSIONS` and `GRINDS`. Missions owns finite campaigns, chapters, missions, supporting tasks, near-complete items, recent completions, and mission history. Grinds owns repeatable activities, contracts, recommendations, mastery, streaks, recent verified work, reward previews, and the compact Gym launcher. Status remains canonical data and is available in history and management instead of becoming another daily tab.
+
+`getPrimaryProgressionSurface(item, fallbackKind)` centralizes routing. It prefers `primaryProgressionSurface`, `progressionSurface`, or `surfaceType`; then explicit repeatability and collection kind; then type and structural fallbacks. It defaults conservatively to Missions for unknown finite records. The selector never mutates state.
+
+The selected primary tab uses `optimizerPrimaryProgressionTabV1` in guarded local storage. Invalid or unavailable values fall back to Missions. Selection does not call `saveState()`, realtime sync, event recording, or any reward operation.
 
 ## State model
 
@@ -114,6 +122,7 @@ Schema 6 migration:
 - Seeds known album progress as `100 / 100 / 80 / 60` without completing chapters or granting rewards.
 - Reconciles real completed Gym sessions into historical contract runs without creating XP, currency, mastery, cycle progress, sounds, or presentations.
 - Creates no activity sessions, revenue events, Revenue Credits, purchases, or reward transactions.
+- Uses a read-only runtime selector for Missions and Grinds, so no schema bump or canonical-state rewrite is required.
 - Is idempotent on repeated local, import, and cloud migration.
 
 ## Extension checklist

@@ -140,6 +140,8 @@ AI updates cannot edit completed sets, workout history, PR records, scores, or a
 
 ## Grind integration
 
+The Grinds tab may show the recommended protocol name and an `ENTER GYM MODE` launcher, but it does not render protocol selection, set logging, rest timers, or workout results. Those remain exclusively inside Gym Mode.
+
 `OptimizerHudCore.finishGymWorkout()` is the canonical finalization route. It calls the Gym scorer and progression transaction first, then:
 
 1. Records the completed repeatable protocol contract.

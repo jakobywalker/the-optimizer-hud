@@ -26,13 +26,13 @@ npm.cmd run build
 
 `npm run check` validates source assets and script order, runs the behavior and progression suites, builds `dist/`, and validates production output. The source `index.html` can be opened directly for local UI work, but cloud sync requires the Vercel API route and Supabase environment variables.
 
-## Grind Board and Unlock Engine
+## Missions and Grinds
 
-The Grind Board is now the primary progression surface. It ranks the next best verified activity, shows the current Subject to Change campaign, available grinds, active contracts, near-completion items, four separate currency balances, and real-world unlock progress before the legacy diagnostic panels.
+The primary progression area has exactly two tabs. `MISSIONS` is the default and contains the personalized Main Quest, current campaign and chapter, finite missions, near-complete work, recent completions, and mission history. `GRINDS` contains repeatable activities, contracts, recommendations, mastery, streaks, reward previews, currency readouts, and Grind history. The selected tab is a guarded local UI preference; switching tabs never saves state, syncs remotely, records an event, or grants a reward.
 
-The expanded command deck provides focused activity sessions, measurable grading, repeatable contracts, explicit campaign milestones and boss completion, mastery and streak tracking, immutable replays, and data-driven content management. The initial content pack covers music, fitness, and revenue-system work, while the engine accepts new domains without a rewrite.
+`OptimizerGrindEngine.getPrimaryProgressionSurface()` is the shared classifier. Explicit surface fields win, then repeatability and record kind, then safe structural fallbacks. Existing mission and campaign records remain finite Missions, while writing, recording, rehearsal, content, revenue, movement, sleep, and similar repeatable activities remain Grinds.
 
-The Unlock Vault keeps financial progress grounded. Optimizer Credits, Mastery Tokens, and Unlock Keys are virtual. Revenue Credits come only from manually verified realized revenue events. Tasks never create Revenue Credits, purchases are never automatic, and unlock eligibility enforces coverage, protected cash, and action requirements.
+The expanded Grind Registry provides focused activity sessions, measurable grading, repeatable contracts, mastery and streak tracking, immutable replays, data-driven management, and the Unlock Vault. Gym Mode stays a separate workout game; Grinds shows only a compact next-protocol launcher. Revenue Credits still come only from manually verified realized revenue events, and purchases are never automatic.
 
 See [docs/GRIND-ENGINE.md](docs/GRIND-ENGINE.md), [docs/REWARD-ECONOMY.md](docs/REWARD-ECONOMY.md), [docs/UNLOCK-VAULT.md](docs/UNLOCK-VAULT.md), and [docs/CAMPAIGNS.md](docs/CAMPAIGNS.md).
 ## Gym Mode
@@ -118,7 +118,7 @@ See [assets/audio/README.md](assets/audio/README.md) for every custom path, numb
 
 Open `DATA` in the HUD to export a JSON handoff or readable report, record a condition check-in, preview an AI update, and undo the latest imported update.
 
-The handoff includes player/track progression, mission completions, dated habit claims, daily clears, bottlenecks removed with resolution notes, reward transactions, level-ups, achievements, source IDs, and timestamps since the previous handoff. AI updates can add positive XP, replace mission/habit/active-bottleneck rewards, add/edit/resolve bottlenecks, and complete/reopen dated habit cells. Every operation remains previewed and explicitly approved.
+The handoff includes separate `missions` and `grind` summaries in JSON and separate `## Missions` and `## Grinds` sections in the readable report, followed by Gym and the complete authoritative state. AI updates can add positive XP, replace mission/habit/active-bottleneck rewards, add/edit/resolve bottlenecks, and complete/reopen dated habit cells. Every operation remains previewed and explicitly approved.
 
 See [docs/AI-WORKFLOW.md](docs/AI-WORKFLOW.md) and the privacy-safe examples in [docs/examples](docs/examples).
 

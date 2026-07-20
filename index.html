@@ -208,7 +208,7 @@ body.ultrawide-mode .fit-indicator{border-color:#3fcaf7;background:#0d3b50;color
   .base-grid{grid-template-columns:1fr 1fr}.base-card{min-height:74px;padding:9px}.slot{height:52px}.today-input{min-height:42px}
   .footer{display:none}
   .modal{width:calc(100% - 16px);max-height:88vh}.modal-head{padding:10px}.modal-body{padding:10px}.modal-actions{position:sticky;bottom:0;background:#06131b;padding:10px 0 0}.modal-actions .btn{flex:1;padding:10px 5px;font-size:9px}
-  .mobile-menu{display:grid;position:fixed;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));z-index:40;grid-template-columns:repeat(4,1fr);gap:4px;padding:5px;background:rgba(3,12,17,.94);border:1px solid #1a6e91;border-radius:9px;box-shadow:0 0 24px rgba(41,190,255,.16);backdrop-filter:blur(16px)}
+  .mobile-menu{display:grid;position:fixed;left:8px;right:8px;bottom:max(8px,env(safe-area-inset-bottom));z-index:40;grid-template-columns:repeat(2,1fr);gap:4px;padding:5px;background:rgba(3,12,17,.94);border:1px solid #1a6e91;border-radius:9px;box-shadow:0 0 24px rgba(41,190,255,.16);backdrop-filter:blur(16px)}
   .mobile-menu button{border:1px solid transparent;background:transparent;color:#86aebb;border-radius:5px;padding:8px 3px 7px;font-size:8px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}.mobile-menu button span{display:block;font-size:16px;margin-bottom:3px;color:#78dfff}.mobile-menu button.active{background:#0d3548;border-color:#2c9bc6;color:#e8f7ff;box-shadow:inset 0 0 12px rgba(89,202,255,.09)}
   [data-mobile-hidden="true"]{display:none!important}
 }
@@ -295,11 +295,9 @@ body.ultrawide-mode .fit-indicator{border-color:#3fcaf7;background:#0d3b50;color
   <footer class="footer">Game rule: remove friction · build systems · complete missions · level up · change the game</footer>
 </div>
 
-<nav class="mobile-menu" id="mobileMenu" aria-label="HUD sections">
-  <button type="button" data-mobile-tab="missions" class="active"><span>◆</span>Missions</button>
-  <button type="button" data-mobile-tab="status"><span>◉</span>Status</button>
-  <button type="button" data-mobile-tab="systems"><span>⚙</span>Systems</button>
-  <button type="button" data-mobile-tab="progress"><span>▦</span>Progress</button>
+<nav class="mobile-menu" id="mobileMenu" aria-label="Primary progression">
+  <button type="button" data-primary-tab-mirror="missions" class="active"><span aria-hidden="true">M</span>Missions</button>
+  <button type="button" data-primary-tab-mirror="grinds"><span aria-hidden="true">G</span>Grinds</button>
 </nav>
 
 <div class="modal-backdrop" id="editModal">
@@ -604,15 +602,8 @@ window.addEventListener('resize',applyScreenFit);
 document.addEventListener('fullscreenchange',()=>setTimeout(applyScreenFit,120));
 
 
-// Mobile pause-menu navigation and collapsible panels
+// Mobile progression mirror and collapsible secondary panels
 const mobileMq=window.matchMedia('(max-width:760px)');
-let mobileTab=storage.getItem('optimizerHudMobileTabV1')||'missions';
-const mobileGroupByTitle={
-  'Character Status':'status','Current Bottleneck':'status','Resources':'status',
-  'Main Quest':'missions','Active Missions':'missions','Daily Operating System':'missions',"Today's Leverage":'missions',
-  'Permanent Buffs':'systems','Active Debuffs':'systems','Skills':'systems','Party':'systems',
-  'Habits Tracker':'progress','Home Base Status':'progress'
-};
 function panelTitleText(panel){
   const el=panel.querySelector('.panel-title');
   if(!el)return '';
@@ -623,9 +614,8 @@ function initMobilePanels(){
     const head=panel.querySelector(':scope > .panel-head');
     if(!head)return;
     const title=panelTitleText(panel);
-    panel.dataset.mobileGroup=mobileGroupByTitle[title]||'systems';
     if(!head.querySelector('.mobile-section-chevron')){
-      const c=document.createElement('span');c.className='mobile-section-chevron';c.textContent='▾';c.setAttribute('aria-hidden','true');head.appendChild(c);
+      const c=document.createElement('span');c.className='mobile-section-chevron';c.textContent='\u25be';c.setAttribute('aria-hidden','true');head.appendChild(c);
     }
     if(!panel.dataset.mobileInit){
       panel.dataset.mobileInit='1';
@@ -640,31 +630,18 @@ function initMobilePanels(){
     panel.classList.toggle('mobile-collapsed',mobileMq.matches&&!shouldOpen);
   });
 }
-function applyMobileTab(tab=mobileTab){
-  mobileTab=tab;storage.setItem('optimizerHudMobileTabV1',tab);
-  document.querySelectorAll('#mobileMenu [data-mobile-tab]').forEach(b=>b.classList.toggle('active',b.dataset.mobileTab===tab));
-  document.querySelectorAll('.panel').forEach(panel=>{
-    panel.dataset.mobileHidden=(mobileMq.matches&&panel.dataset.mobileGroup!==tab)?'true':'false';
-  });
-  if(mobileMq.matches)window.scrollTo({top:0,behavior:'smooth'});
-}
 function syncMobileMode(){
   initMobilePanels();
   if(mobileMq.matches){
     document.body.classList.remove('ultrawide-mode');
     const app=document.querySelector('.app');app.style.zoom='';app.style.width='';app.style.minHeight='';
-    applyMobileTab(mobileTab);
   }else{
-    document.querySelectorAll('.panel').forEach(p=>{p.dataset.mobileHidden='false';p.classList.remove('mobile-collapsed')});
+    document.querySelectorAll('.panel').forEach(panel=>panel.classList.remove('mobile-collapsed'));
     applyScreenFit();
   }
 }
-document.getElementById('mobileMenu')?.addEventListener('click',e=>{
-  const btn=e.target.closest('[data-mobile-tab]');if(btn)applyMobileTab(btn.dataset.mobileTab);
-});
 mobileMq.addEventListener?.('change',syncMobileMode);
 window.addEventListener('orientationchange',()=>setTimeout(syncMobileMode,150));
-
 setInterval(renderClock,1000);
 render();
 applyMotionMode();
