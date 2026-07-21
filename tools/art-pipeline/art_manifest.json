@@ -2,12 +2,12 @@
   "version": 1,
   "project": "The Optimizer HUD",
   "default_model": "gemini-3.1-flash-image",
-  "default_output_mime_type": "image/png",
+  "default_output_mime_type": "image/jpeg",
   "global_style_prompt": "Use the attached Optimizer visual-direction board as the definitive style reference.\nThe Optimizer is an original premium real-life RPG interface set inside a private, high-end near-future operations facility. Preserve the established visual language: dark aerospace architecture, graphite metal, smoked glass, subtle holographic layers, restrained cyan system light, violet creative light, controlled gold contract light, deep physical environmental depth, serious aspirational mood, and strong negative space.\nDo not imitate a recognizable existing game or copy an existing interface layout. Do not bake functional UI, readable labels, charts, stats, navigation, buttons, or small text into the artwork. The application renders all functional text and controls in HTML/CSS. Keep critical details away from outer edges and preserve safe crop zones.\nAvoid generic neon city scenes, hacker-terminal clutter, casino imagery, crypto-coin cliches, excessive cyan, excessive glow, fake code, and mobile-game visual noise.\nUse this as a style reference. Do not recreate the presentation board. Return one clean production asset.",
   "tasks": [
     {
       "id": "hud-command-center-ultrawide",
-      "filename": "backgrounds/hud-command-center-ultrawide.png",
+      "filename": "backgrounds/hud-command-center-ultrawide.jpg",
       "model": "gemini-3.1-flash-image",
       "aspect_ratio": "21:9",
       "image_size": "2K",
@@ -18,7 +18,7 @@
     },
     {
       "id": "grinds-contract-terminal-ultrawide",
-      "filename": "backgrounds/grinds-contract-terminal-ultrawide.png",
+      "filename": "backgrounds/grinds-contract-terminal-ultrawide.jpg",
       "model": "gemini-3.1-flash-image",
       "aspect_ratio": "21:9",
       "image_size": "2K",
@@ -29,7 +29,7 @@
     },
     {
       "id": "subject-to-change-campaign-hero",
-      "filename": "campaigns/subject-to-change/hero.png",
+      "filename": "campaigns/subject-to-change/hero.jpg",
       "model": "gemini-3-pro-image",
       "aspect_ratio": "16:9",
       "image_size": "4K",
@@ -40,7 +40,7 @@
     },
     {
       "id": "subject-to-change-card",
-      "filename": "campaigns/subject-to-change/card.png",
+      "filename": "campaigns/subject-to-change/card.jpg",
       "model": "gemini-3.1-flash-image",
       "aspect_ratio": "16:9",
       "image_size": "2K",
@@ -51,7 +51,7 @@
     },
     {
       "id": "subject-to-change-completion",
-      "filename": "campaigns/subject-to-change/completion-background.png",
+      "filename": "campaigns/subject-to-change/completion-background.jpg",
       "model": "gemini-3-pro-image",
       "aspect_ratio": "16:9",
       "image_size": "4K",
@@ -62,7 +62,7 @@
     },
     {
       "id": "grind-music-creation",
-      "filename": "grinds/music-creation.png",
+      "filename": "grinds/music-creation.jpg",
       "model": "gemini-3.1-flash-image",
       "aspect_ratio": "16:9",
       "image_size": "2K",
@@ -73,7 +73,7 @@
     },
     {
       "id": "grind-vocal-recording",
-      "filename": "grinds/vocal-recording.png",
+      "filename": "grinds/vocal-recording.jpg",
       "model": "gemini-3.1-flash-image",
       "aspect_ratio": "16:9",
       "image_size": "2K",
@@ -84,7 +84,7 @@
     },
     {
       "id": "grind-performance",
-      "filename": "grinds/performance.png",
+      "filename": "grinds/performance.jpg",
       "model": "gemini-3.1-flash-image",
       "aspect_ratio": "16:9",
       "image_size": "2K",
@@ -95,7 +95,7 @@
     },
     {
       "id": "grind-fitness",
-      "filename": "grinds/fitness.png",
+      "filename": "grinds/fitness.jpg",
       "model": "gemini-3.1-flash-image",
       "aspect_ratio": "16:9",
       "image_size": "2K",
@@ -106,7 +106,7 @@
     },
     {
       "id": "grind-revenue",
-      "filename": "grinds/revenue.png",
+      "filename": "grinds/revenue.jpg",
       "model": "gemini-3.1-flash-image",
       "aspect_ratio": "16:9",
       "image_size": "2K",
@@ -117,7 +117,7 @@
     },
     {
       "id": "grind-content-production",
-      "filename": "grinds/content-production.png",
+      "filename": "grinds/content-production.jpg",
       "model": "gemini-3.1-flash-image",
       "aspect_ratio": "16:9",
       "image_size": "2K",
@@ -128,7 +128,7 @@
     },
     {
       "id": "currency-optimizer-credits",
-      "filename": "currencies/optimizer-credits.png",
+      "filename": "currencies/optimizer-credits.jpg",
       "model": "gemini-3.1-flash-image",
       "aspect_ratio": "1:1",
       "image_size": "1K",
@@ -139,7 +139,7 @@
     },
     {
       "id": "currency-mastery-token",
-      "filename": "currencies/mastery-token.png",
+      "filename": "currencies/mastery-token.jpg",
       "model": "gemini-3.1-flash-image",
       "aspect_ratio": "1:1",
       "image_size": "1K",
@@ -150,7 +150,7 @@
     },
     {
       "id": "currency-unlock-key",
-      "filename": "currencies/unlock-key.png",
+      "filename": "currencies/unlock-key.jpg",
       "model": "gemini-3.1-flash-image",
       "aspect_ratio": "1:1",
       "image_size": "1K",
@@ -161,7 +161,7 @@
     },
     {
       "id": "currency-revenue-credit",
-      "filename": "currencies/revenue-credit.png",
+      "filename": "currencies/revenue-credit.jpg",
       "model": "gemini-3.1-flash-image",
       "aspect_ratio": "1:1",
       "image_size": "1K",
@@ -172,7 +172,7 @@
     },
     {
       "id": "achievement-normal",
-      "filename": "achievements/normal-achievement.png",
+      "filename": "achievements/normal-achievement.jpg",
       "model": "gemini-3.1-flash-image",
       "aspect_ratio": "1:1",
       "image_size": "1K",
@@ -183,7 +183,7 @@
     },
     {
       "id": "achievement-campaign",
-      "filename": "achievements/campaign-achievement.png",
+      "filename": "achievements/campaign-achievement.jpg",
       "model": "gemini-3-pro-image",
       "aspect_ratio": "1:1",
       "image_size": "2K",
@@ -194,7 +194,7 @@
     },
     {
       "id": "achievement-boss-completion",
-      "filename": "achievements/boss-completion.png",
+      "filename": "achievements/boss-completion.jpg",
       "model": "gemini-3-pro-image",
       "aspect_ratio": "1:1",
       "image_size": "2K",
@@ -205,7 +205,7 @@
     },
     {
       "id": "unlock-card-locked",
-      "filename": "unlocks/card-locked.png",
+      "filename": "unlocks/card-locked.jpg",
       "model": "gemini-3.1-flash-image",
       "aspect_ratio": "4:5",
       "image_size": "2K",
@@ -216,7 +216,7 @@
     },
     {
       "id": "unlock-card-unlocked",
-      "filename": "unlocks/card-unlocked.png",
+      "filename": "unlocks/card-unlocked.jpg",
       "model": "gemini-3-pro-image",
       "aspect_ratio": "4:5",
       "image_size": "2K",

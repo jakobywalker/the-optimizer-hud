@@ -32,3 +32,5 @@ tools/art-pipeline/.venv/
 tools/art-pipeline/__pycache__/
 tools/art-pipeline/.env
 tools/art-pipeline/outputs/
+
+.vercel

@@ -28,10 +28,10 @@ SUPPORTED_ASPECT_RATIOS = frozenset(
     {"1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9"}
 )
 SUPPORTED_IMAGE_SIZES = frozenset({"0.5K", "1K", "2K", "4K"})
-SUPPORTED_OUTPUT_MIME_TYPES = frozenset({"image/png", "image/jpeg"})
+SUPPORTED_OUTPUT_MIME_TYPES = frozenset({"image/jpeg"})
 TRANSIENT_STATUS_CODES = frozenset({408, 409, 429, 500, 502, 503, 504})
 TASK_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]*$")
-MIME_SUFFIX = {"image/png": ".png", "image/jpeg": ".jpg"}
+MIME_SUFFIX = {"image/jpeg": ".jpg"}
 
 
 class PipelineError(RuntimeError):
@@ -154,7 +154,7 @@ def validate_manifest(path: Path) -> tuple[dict[str, Any], list[TaskSpec]]:
     )
     default_model = require_text(manifest.get("default_model"), "default_model")
     default_mime = require_text(
-        manifest.get("default_output_mime_type", "image/png"),
+        manifest.get("default_output_mime_type", "image/jpeg"),
         "default_output_mime_type",
     )
     if default_model not in VERIFIED_IMAGE_MODELS:

@@ -90,11 +90,13 @@ The approval batch checks environment consistency, campaign identity, and music-
 Generated assets are written beneath `outputs/` using the manifest filename, for example:
 
 ```text
-outputs/backgrounds/hud-command-center-ultrawide.png
-outputs/backgrounds/hud-command-center-ultrawide.png.json
+outputs/backgrounds/hud-command-center-ultrawide.jpg
+outputs/backgrounds/hud-command-center-ultrawide.jpg.json
 ```
 
 Each sidecar records the task ID, output filename, model, aspect ratio, requested size, MIME type, effective prompt, reference filenames, and UTC timestamp. It never contains the API key, environment, authentication headers, or encoded image data.
+
+The current Gemini Interactions image endpoint accepts `image/jpeg` for these verified models, so generated production filenames use `.jpg`. PNG, JPEG, and WebP remain valid reference-image inputs.
 
 Completed image/sidecar pairs are skipped, so rerunning the same command safely resumes an interrupted batch. Partial `.part` files are cleaned up. If an image exists without its required metadata sidecar, inspect it and rerun that task with `--force`.
 
