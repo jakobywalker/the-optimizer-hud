@@ -26,3 +26,9 @@ dist/
 .pnpm-home/
 .pnpm-user/
 .publish-clone-*/
+
+# Local art-generation runtime and outputs
+tools/art-pipeline/.venv/
+tools/art-pipeline/__pycache__/
+tools/art-pipeline/.env
+tools/art-pipeline/outputs/

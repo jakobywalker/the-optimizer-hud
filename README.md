@@ -174,6 +174,7 @@ The private GitHub repository is connected to Vercel with `main` as the producti
 - `sync.js` adds authentication, durable cloud saves, offline recovery, realtime updates, and optimistic revisions.
 - `scripts/test-hud.mjs`, `scripts/test-progression.mjs`, `scripts/test-engagement.mjs`, `scripts/test-gym.mjs`, and `scripts/test-grind.mjs` provide behavior and regression coverage.
 - `scripts/build.mjs`, `scripts/check.mjs`, and `scripts/check-build.mjs` validate and assemble production output.
+- Art generation tools and approval workflow live in [`tools/art-pipeline/`](tools/art-pipeline/README.md).
 - `supabase/schema.sql` defines the existing user-scoped JSONB state and realtime policies.
 
 ## Privacy

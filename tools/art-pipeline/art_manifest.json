@@ -1,0 +1,229 @@
+{
+  "version": 1,
+  "project": "The Optimizer HUD",
+  "default_model": "gemini-3.1-flash-image",
+  "default_output_mime_type": "image/png",
+  "global_style_prompt": "Use the attached Optimizer visual-direction board as the definitive style reference.\nThe Optimizer is an original premium real-life RPG interface set inside a private, high-end near-future operations facility. Preserve the established visual language: dark aerospace architecture, graphite metal, smoked glass, subtle holographic layers, restrained cyan system light, violet creative light, controlled gold contract light, deep physical environmental depth, serious aspirational mood, and strong negative space.\nDo not imitate a recognizable existing game or copy an existing interface layout. Do not bake functional UI, readable labels, charts, stats, navigation, buttons, or small text into the artwork. The application renders all functional text and controls in HTML/CSS. Keep critical details away from outer edges and preserve safe crop zones.\nAvoid generic neon city scenes, hacker-terminal clutter, casino imagery, crypto-coin cliches, excessive cyan, excessive glow, fake code, and mobile-game visual noise.\nUse this as a style reference. Do not recreate the presentation board. Return one clean production asset.",
+  "tasks": [
+    {
+      "id": "hud-command-center-ultrawide",
+      "filename": "backgrounds/hud-command-center-ultrawide.png",
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "21:9",
+      "image_size": "2K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create a clean production background for the MAIN HUD COMMAND CENTER. Calm strategic operations environment, dark structural framing, distant machinery, subtle violet campaign illumination, restrained cyan systems light, and large low-detail dark regions for readable interface overlays. No UI panels or text."
+    },
+    {
+      "id": "grinds-contract-terminal-ultrawide",
+      "filename": "backgrounds/grinds-contract-terminal-ultrawide.png",
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "21:9",
+      "image_size": "2K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create a clean production background for the GRINDS CONTRACT TERMINAL. A distinct deployment room with controlled amber and gold industrial lighting, contract-terminal architecture, pathways, depth, and broad dark zones for grind cards. More energetic than the HUD but still premium and readable. No UI panels or text."
+    },
+    {
+      "id": "subject-to-change-campaign-hero",
+      "filename": "campaigns/subject-to-change/hero.png",
+      "model": "gemini-3-pro-image",
+      "aspect_ratio": "16:9",
+      "image_size": "4K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create the definitive Subject to Change campaign hero art. Symbolic transformation, identity, sacrifice, becoming undeniable, fractured reflective surfaces, a distant child silhouette, an illuminated threshold, crown-like geometry, violet and gold light emerging from darkness. No title or readable text. Leave strong negative space for HTML overlay."
+    },
+    {
+      "id": "subject-to-change-card",
+      "filename": "campaigns/subject-to-change/card.png",
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "16:9",
+      "image_size": "2K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create a compact Subject to Change campaign card background: fractured mirror threshold, violet transformation light, restrained gold campaign accents, one symbolic human silhouette, broad dark area for title and progress."
+    },
+    {
+      "id": "subject-to-change-completion",
+      "filename": "campaigns/subject-to-change/completion-background.png",
+      "model": "gemini-3-pro-image",
+      "aspect_ratio": "16:9",
+      "image_size": "4K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create a monumental campaign-completion environment for Subject to Change. The threshold has been crossed, fractured forms resolve into a powerful final silhouette, violet and gold light transforms the command world, cinematic but not gaudy, space for reward text."
+    },
+    {
+      "id": "grind-music-creation",
+      "filename": "grinds/music-creation.png",
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "16:9",
+      "image_size": "2K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create a Music Creation grind tile: waveform architecture, a futuristic writing surface, layered sound geometry, violet creative energy, premium dark room, clear central subject and dark overlay-safe region."
+    },
+    {
+      "id": "grind-vocal-recording",
+      "filename": "grinds/vocal-recording.png",
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "16:9",
+      "image_size": "2K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create a Vocal Recording grind tile: advanced vocal chamber with an illuminated studio microphone silhouette, acoustic architecture, violet and cool-white controlled light, serious premium mood, dark area for interface overlay."
+    },
+    {
+      "id": "grind-performance",
+      "filename": "grinds/performance.png",
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "16:9",
+      "image_size": "2K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create a Performance grind tile: dark stage beyond a mechanical curtain, one controlled spotlight, energy building before entry, aspirational but tense, no readable signage, large negative-space region for card text."
+    },
+    {
+      "id": "grind-fitness",
+      "filename": "grinds/fitness.png",
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "16:9",
+      "image_size": "2K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create a Fitness grind tile: advanced dark training chamber, strength equipment and motion systems integrated into aerospace architecture, restrained green and cyan status lighting, powerful and disciplined."
+    },
+    {
+      "id": "grind-revenue",
+      "filename": "grinds/revenue.png",
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "16:9",
+      "image_size": "2K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create a Revenue grind tile: contract terminal, pipeline network, precise controlled gold and green data flow represented as physical light channels, grounded and serious, not crypto or casino imagery, dark interface-safe region."
+    },
+    {
+      "id": "grind-content-production",
+      "filename": "grinds/content-production.png",
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "16:9",
+      "image_size": "2K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create a Content Production grind tile: futuristic capture station, lens systems, modular media assembly environment, cyan and violet precision lighting, premium dark surfaces, strong focal object and open region for card text."
+    },
+    {
+      "id": "currency-optimizer-credits",
+      "filename": "currencies/optimizer-credits.png",
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create one centered Optimizer Credits icon as an accessible frequently-earned geometric energy currency. Cyan crystalline aerospace design, bold silhouette, no letters or numbers, isolated on a pure white background with generous padding."
+    },
+    {
+      "id": "currency-mastery-token",
+      "filename": "currencies/mastery-token.png",
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create one centered Mastery Token icon. Rare engraved dark-metal and gold artifact associated with repeated excellence, highly readable silhouette, no letters or numbers, isolated on a pure white background with generous padding."
+    },
+    {
+      "id": "currency-unlock-key",
+      "filename": "currencies/unlock-key.png",
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create one centered Unlock Key icon. Prestigious campaign-level access artifact, symbolic near-future key geometry rather than an ordinary house key, gold and graphite, no text, isolated on a pure white background with generous padding."
+    },
+    {
+      "id": "currency-revenue-credit",
+      "filename": "currencies/revenue-credit.png",
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create one centered Revenue Credit icon. Financially grounded precision artifact using gold and green, serious institutional design, not a crypto coin and no dollar symbol, bold readable silhouette, isolated on a pure white background with generous padding."
+    },
+    {
+      "id": "achievement-normal",
+      "filename": "achievements/normal-achievement.png",
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "1:1",
+      "image_size": "1K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create one centered normal achievement emblem in the Optimizer world. Graphite and restrained silver, clean geometric rank shape, premium but common tier, no letters, isolated on pure white."
+    },
+    {
+      "id": "achievement-campaign",
+      "filename": "achievements/campaign-achievement.png",
+      "model": "gemini-3-pro-image",
+      "aspect_ratio": "1:1",
+      "image_size": "2K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create one centered campaign achievement emblem. Complex prestigious gold and violet aerospace geometry, transformational motif, visibly above normal achievement tier, no letters or faces, isolated on pure white with generous padding."
+    },
+    {
+      "id": "achievement-boss-completion",
+      "filename": "achievements/boss-completion.png",
+      "model": "gemini-3-pro-image",
+      "aspect_ratio": "1:1",
+      "image_size": "2K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create one centered boss-completion emblem. Monumental permanent achievement artifact with graphite, gold, violet energy and crown-like transformational geometry, unmistakably legendary without being gaudy, no text, isolated on pure white."
+    },
+    {
+      "id": "unlock-card-locked",
+      "filename": "unlocks/card-locked.png",
+      "model": "gemini-3.1-flash-image",
+      "aspect_ratio": "4:5",
+      "image_size": "2K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create a reusable locked real-world unlock card artwork. A premium future object is hidden by shadow and holographic obstruction inside a graphite display chamber. No specific branded item, no text, clear dark area for HTML overlay."
+    },
+    {
+      "id": "unlock-card-unlocked",
+      "filename": "unlocks/card-unlocked.png",
+      "model": "gemini-3-pro-image",
+      "aspect_ratio": "4:5",
+      "image_size": "2K",
+      "references": [
+        "references/optimizer-visual-direction-board.png"
+      ],
+      "prompt": "Create the matching unlocked real-world unlock card artwork. The same generic premium future object is fully revealed inside the display chamber with controlled gold and violet completion light, celebratory but serious, no text, clear overlay-safe region."
+    }
+  ]
+}
