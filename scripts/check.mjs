@@ -75,6 +75,8 @@ if (!grindUi.includes("Current Campaign") || !grindUi.includes('id="campaignName
 }
 if (!grindUi.includes('class="hud-inline-grind"') || !grindUi.includes('id="missionHistoryDrawer"') || !grindUi.includes("data-open-history") || grindUi.includes("data-mission-status-filter")) {
   throw new Error("HUD must keep one compact Grind launcher and secondary mission history without status tabs");
+}if (!grindUi.includes('nextArt=artwork.grindFor(recommended?.activity)') || !grindUi.includes('.hud-system-dashboard .hud-system-missions{--system-art:') || !grindUi.includes('.hud-system-dashboard .hud-system-character') || !grindUi.includes('Approved art integration for the restored life-system command center')) {
+  throw new Error("Approved campaign, Grind, and system art must remain visible in the restored command center");
 }
 if (hudRenderer.includes("Available Grinds") || hudRenderer.includes("data-grind-start")) {
   throw new Error("The full Grind catalog must not render inside Mission Control");
