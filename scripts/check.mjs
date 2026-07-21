@@ -60,6 +60,9 @@ const hudRenderer = sliceBetween(grindUi, "function renderBoard()", "function na
 if (!hudRenderer.includes('board.querySelector("#todayActions")') || !hudRenderer.includes("slice(0,6)") || !hudRenderer.includes("Open Grinds")) {
   throw new Error("HUD must prioritize the campaign, bounded Today's Actions, and one Grind launcher");
 }
+if (!grindUi.includes("hud-command-strip") || !grindUi.includes("hud-tactical-grid") || !grindUi.includes("hud-signal-line")) {
+  throw new Error("HUD must retain the compact command-deck hierarchy");
+}
 if (hudRenderer.includes("Available Grinds") || hudRenderer.includes("data-grind-start")) {
   throw new Error("The full Grind catalog must not render inside Mission Control");
 }
