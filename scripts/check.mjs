@@ -60,8 +60,21 @@ const hudRenderer = sliceBetween(grindUi, "function renderBoard()", "function na
 if (!hudRenderer.includes('board.querySelector("#todayActions")') || !hudRenderer.includes("slice(0,6)") || !hudRenderer.includes("Open Grinds")) {
   throw new Error("HUD must prioritize the campaign, bounded Today's Actions, and one Grind launcher");
 }
-if (!grindUi.includes("hud-command-strip") || !grindUi.includes("hud-tactical-grid") || !grindUi.includes("hud-signal-line")) {
-  throw new Error("HUD must retain the compact command-deck hierarchy");
+if (!grindUi.includes("hud-command-strip") || !grindUi.includes("hud-system-dashboard") || !grindUi.includes("hud-signal-line") || !grindUi.includes('id="dashboardSlot"')) {
+  throw new Error("HUD must retain the full command-center hierarchy");
+}
+const requiredSystemIds = ["characterStats", "skills", "dailySystem", "buffs", "activeDebuffs", "debuffList", "resources", "habitTracker", "baseStatus", "partySlots", "todayLeverage", "missions"];
+for (const id of requiredSystemIds) {
+  if (!html.includes(`id="${id}"`)) throw new Error("Missing major HUD system: " + id);
+}
+if (!grindUi.includes('dashboard.hidden=false') || !grindUi.includes('dashboard.classList.add("hud-system-dashboard")') || grindUi.includes('dashboard.hidden=true')) {
+  throw new Error("The complete personalized dashboard must remain visible on desktop and ultrawide screens");
+}
+if (!grindUi.includes("Current Campaign") || !grindUi.includes('id="campaignName"') || !grindUi.includes('id="campaignScore"') || !grindEngine.includes("campaign-subject-to-change")) {
+  throw new Error("Subject to Change must remain the prominent live campaign");
+}
+if (!grindUi.includes('class="hud-inline-grind"') || !grindUi.includes('id="missionHistoryDrawer"') || !grindUi.includes("data-open-history") || grindUi.includes("data-mission-status-filter")) {
+  throw new Error("HUD must keep one compact Grind launcher and secondary mission history without status tabs");
 }
 if (hudRenderer.includes("Available Grinds") || hudRenderer.includes("data-grind-start")) {
   throw new Error("The full Grind catalog must not render inside Mission Control");
@@ -77,8 +90,15 @@ if (!systemSelection.includes('aria-expanded') || !systemSelection.includes("con
 if (!grindUi.includes('const defaults=Object.fromEntries(SYSTEM_KEYS.map(key=>[key,false]))') || !grindUi.includes('loadDensity()') || !grindUi.includes('HUD DENSITY: ')) {
   throw new Error("Invalid display preferences must fall back to collapsed systems and comfortable density");
 }
-if (!grindUi.includes("--font-body:16px") || !grindUi.includes("--font-label:13px") || !grindUi.includes(".top-nav-btn,.btn{min-height:44px") || !grindUi.includes("3200px")) {
-  throw new Error("Readable typography, target sizing, and controlled ultrawide width are required");
+if (!grindUi.includes("--font-body:16px") || !grindUi.includes("--font-label:13px") || !grindUi.includes(".top-nav-btn,.btn{min-height:44px") || !grindUi.includes("width:100%!important;max-width:none!important;margin:0!important") || !grindUi.includes(".hud-system-dashboard .panel-title{font-size:18px")) {
+  throw new Error("Readable typography, target sizing, and full-width ultrawide use are required");
+}
+const mobilePanels = sliceBetween(html, "function initMobilePanels()", "function syncMobileMode");
+if (!mobilePanels.includes("optimizerPanel:") || !mobilePanels.includes("mobile-collapsed") || /saveState|grantReward|createRewardTransaction/.test(mobilePanels)) {
+  throw new Error("Mobile system collapse must remain persistent and progression-free");
+}
+if (!grindUi.includes(".hud-system-dashboard .hud-system-missions{order:1}") || !grindUi.includes("display:flex!important;flex-direction:column")) {
+  throw new Error("Mobile must prioritize Active Missions in a one-column command center");
 }
 if (html.includes("app.style.zoom=String") || html.includes("window.innerWidth/scale") || html.includes("naturalHeight=app.scrollHeight")) {
   throw new Error("Ultrawide mode must not shrink the HUD to fit vertically");
