@@ -60,7 +60,7 @@ test("old percentages migrate to level one XP without losing condition values",(
 test("legacy player level is preserved and old goal becomes a percentage",()=>{
  const state=migrated();assert.deepEqual([state.player.level,state.player.xp,state.player.xpRequired],[27,57,100])
 });
-test("schema v6 migration is idempotent",()=>{
+test("schema v7 migration is idempotent",()=>{
  const first=migrated("first"),second=core.migrateState(copy(first),legacy(),{idFactory:ids("second"),now:"2026-07-17T12:30:00.000Z"});
  assert.deepEqual(second.progression,first.progression);assert.equal(second.player.xp,57);assert.equal(second.missions[0].id,first.missions[0].id)
 });

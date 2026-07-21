@@ -13,12 +13,13 @@ const tests=[];
 const test=(name,run)=>tests.push({name,run});
 const copy=value=>JSON.parse(JSON.stringify(value));
 const ids=prefix=>{let value=0;return()=>prefix+"-"+(++value)};
+const playerTotal=state=>(state.player.level-1)*100+state.player.xp;
 
 function legacy(options={}){
  const names=options.habitNames||core.HABIT_DEFINITIONS.map(item=>item.name);
  const values=options.habitValues||names.map(()=>Array(7).fill(false));
  return{
-  player:{level:4,xp:20,xpGoal:100},
+  player:options.player||{level:4,xp:20,xpGoal:100},
   top:{Energy:42,Clarity:68,Momentum:53,Alignment:44,Capacity:40,Leverage:30},
   character:[],resources:[],skills:[["Fitness",68],["Music Creation",88]],
   missions:[],quest:{title:"Quest",stages:[]},
@@ -31,37 +32,42 @@ function legacy(options={}){
 function migrated(prefix="engagement",options={}){
  const source=legacy(options);return core.migrateState(source,source,{idFactory:ids(prefix),now:"2026-07-17T12:00:00.000Z"})
 }
-function checkHabit(state,id,column=0,prefix="habit"){
+function checkHabit(state,id,column=0,prefix="habit",now="2026-07-17T13:00:00.000Z"){
  const habit=state.habits.items.find(item=>item.id===id),before=habit.values[column];habit.values[column]=true;
- return core.completeHabit(state,id,column,{idFactory:ids(prefix),now:"2026-07-17T13:00:00.000Z",transitioned:!before,previousValue:before})
+ return core.completeHabit(state,id,column,{idFactory:ids(prefix),now,transitioned:!before,previousValue:before})
+}
+function uncheckHabit(state,id,column=0,prefix="habit-reverse",now="2026-07-17T14:00:00.000Z"){
+ const habit=state.habits.items.find(item=>item.id===id),before=habit.values[column];habit.values[column]=false;
+ return core.reopenHabit(state,id,column,{idFactory:ids(prefix),now,transitioned:before,previousValue:before})
 }
 
-test("schema v6 installs the seven standard habits and preserves custom history",()=>{
+test("schema v7 installs reversible standard habits and preserves custom history",()=>{
  const names=["Gym / Train","My Custom Habit"],values=[[true,false,false,false,false,false,false],[false,true,false,false,false,false,false]],state=migrated("migration",{habitNames:names,habitValues:values});
  assert.deepEqual(state.habits.items.slice(0,7).map(item=>item.id),core.HABIT_IDS);
  assert.equal(state.habits.items.find(item=>item.name==="Gym / Train").values[0],true);
  assert.equal(state.habits.items.find(item=>item.name==="My Custom Habit").values[1],true);
- assert.equal(state.meta.schemaVersion,6)
+ assert.equal(state.meta.schemaVersion,7)
 });
 
 test("standard habit rewards match the progression contract",()=>{
  const byId=Object.fromEntries(core.HABIT_DEFINITIONS.map(item=>[item.id,item.rewards]));
+ assert.ok(Object.values(byId).every(reward=>reward.playerXp===5));assert.equal(migrated("reward-default").habits.dailyClearRewards.playerXp,10);
  assert.deepEqual(byId["gym-train"].progression.map(item=>[item.targetId,item.amount]),[["fitness",5],["energy",2]]);
  assert.deepEqual(byId["content-released"].progression.map(item=>[item.targetId,item.amount]),[["leverage",6],["music-creation",4],["momentum",2]])
 });
 
-test("legacy checked cells are marked without fabricated transactions",()=>{
- const values=core.HABIT_DEFINITIONS.map(()=>Array(7).fill(false));values[0][0]=true;const state=migrated("legacy-cell",{habitValues:values}),habit=state.habits.items.find(item=>item.id==="gym-train");
+test("legacy checked cells get no migration XP but future rechecks use reward v2",()=>{
+ const values=core.HABIT_DEFINITIONS.map(()=>Array(7).fill(false));values[0][0]=true;const state=migrated("legacy-cell",{habitValues:values}),before=playerTotal(state);
  assert.equal(state.rewardTransactions.length,0);assert.ok(state.rewardClaims.some(claim=>claim.idempotencyKey==="habit:gym-train:2026-07-13:reward-v1"));
- habit.values[0]=false;habit.values[0]=true;const result=core.completeHabit(state,habit.id,0,{transitioned:true,previousValue:false,idFactory:ids("legacy-recheck")});
- assert.equal(result.habitResult.applied,false);assert.equal(state.rewardTransactions.length,0)
+ uncheckHabit(state,"gym-train");const result=checkHabit(state,"gym-train",0,"legacy-recheck");assert.equal(result.habitResult.applied,true);assert.equal(result.habitResult.transaction.idempotencyKey,"habit:gym-train:2026-07-13:reward-v2");assert.equal(playerTotal(state),before+5)
 });
 
-test("a direct habit transition applies its structured reward once",()=>{
- const state=migrated("direct"),beforeFitness=state.progression.tracks.fitness.xp,beforeEnergy=state.progression.tracks.energy.xp,result=checkHabit(state,"gym-train");
- assert.equal(result.habitResult.applied,true);assert.equal(state.progression.tracks.fitness.xp,beforeFitness+5);assert.equal(state.progression.tracks.energy.xp,beforeEnergy+2);
- const habit=state.habits.items.find(item=>item.id==="gym-train");habit.values[0]=false;habit.values[0]=true;const again=core.completeHabit(state,habit.id,0,{transitioned:true,previousValue:false,idFactory:ids("again")});
- assert.equal(again.habitResult.applied,false);assert.equal(state.rewardTransactions.filter(item=>item.type==="habit-completion").length,1)
+test("a habit reward applies once, reverses exactly, and reinstates without stacking",()=>{
+ const state=migrated("direct"),beforePlayer=playerTotal(state),beforeFitness=state.progression.tracks.fitness.xp,beforeEnergy=state.progression.tracks.energy.xp,result=checkHabit(state,"gym-train");
+ assert.equal(result.habitResult.applied,true);assert.equal(result.habitResult.transaction.rewards.playerXp,5);assert.equal(playerTotal(state),beforePlayer+5);assert.equal(state.progression.tracks.fitness.xp,beforeFitness+5);assert.equal(state.progression.tracks.energy.xp,beforeEnergy+2);
+ const reversed=uncheckHabit(state,"gym-train");assert.equal(reversed.habitResult.applied,true);assert.equal(reversed.habitResult.removedRewards.playerXp,5);assert.equal(playerTotal(state),beforePlayer);assert.equal(state.progression.tracks.fitness.xp,beforeFitness);assert.equal(state.progression.tracks.energy.xp,beforeEnergy);
+ const reinstated=checkHabit(state,"gym-train",0,"reinstate","2026-07-17T15:00:00.000Z"),duplicate=core.completeHabit(state,"gym-train",0,{transitioned:false,previousValue:true,idFactory:ids("duplicate")});assert.equal(reinstated.habitResult.reinstated,true);assert.equal(duplicate.habitResult.applied,false);assert.equal(playerTotal(state),beforePlayer+5);
+ assert.equal(state.rewardTransactions.filter(item=>item.type==="habit-completion").length,1);assert.equal(state.rewardTransactions.filter(item=>item.type==="habit-reversal").length,1)
 });
 
 test("habit steps use the E-flat seven-note frequency language",()=>{
@@ -69,19 +75,36 @@ test("habit steps use the E-flat seven-note frequency language",()=>{
  const state=migrated("steps");for(let index=0;index<7;index++){const result=checkHabit(state,core.HABIT_IDS[index],1,"step-"+index);assert.equal(result.step,index+1)}
 });
 
-test("seven standard habits trigger one daily clear reward",()=>{
- const state=migrated("clear"),beforePlayer=state.player.xp;let final;
+test("Daily System Clear applies, reverses, and reinstates exactly once",()=>{
+ const state=migrated("clear"),beforePlayer=playerTotal(state);let final;
  for(let index=0;index<7;index++)final=checkHabit(state,core.HABIT_IDS[index],2,"clear-"+index);
- assert.equal(final.dayComplete,true);assert.equal(final.dayClearResult.applied,true);assert.equal(final.dayClearResult.transaction.rewards.playerXp,10);
- assert.equal(state.player.xp,beforePlayer+10);assert.equal(state.rewardTransactions.filter(item=>item.type==="habit-day-clear").length,1);
- const last=state.habits.items.find(item=>item.id===core.HABIT_IDS[6]);last.values[2]=false;last.values[2]=true;const again=core.completeHabit(state,last.id,2,{transitioned:true,previousValue:false,idFactory:ids("clear-again")});assert.equal(again.dayClearResult.applied,false)
+ assert.equal(final.dayComplete,true);assert.equal(final.dayClearResult.applied,true);assert.equal(final.dayClearResult.transaction.rewards.playerXp,10);assert.equal(playerTotal(state),beforePlayer+45);assert.equal(state.rewardTransactions.filter(item=>item.type==="habit-day-clear").length,1);
+ const reversed=uncheckHabit(state,core.HABIT_IDS[6],2,"clear-reverse");assert.equal(reversed.dayClearResult.applied,true);assert.equal(reversed.dayClearResult.removedRewards.playerXp,10);assert.equal(playerTotal(state),beforePlayer+30);
+ const restored=checkHabit(state,core.HABIT_IDS[6],2,"clear-reinstate","2026-07-17T15:00:00.000Z");assert.equal(restored.dayClearResult.reinstated,true);assert.equal(playerTotal(state),beforePlayer+45);assert.equal(state.rewardTransactions.filter(item=>item.type==="habit-day-clear").length,1);assert.equal(state.rewardTransactions.filter(item=>item.type==="habit-day-clear-reversal").length,1)
 });
 
-test("refresh migration and duplicate cloud claims never farm habit XP",()=>{
- const base=migrated("cloud"),local=copy(base),remote=copy(base);checkHabit(local,"gym-train",3,"local");checkHabit(remote,"gym-train",3,"remote");
- const merged=core.mergeCloudState(local,remote),key="habit:gym-train:2026-07-16:reward-v1";
- assert.equal(merged.rewardTransactions.filter(item=>item.idempotencyKey===key).length,1);assert.equal(merged.rewardClaims.filter(item=>item.idempotencyKey===key).length,1);
- const refreshed=core.migrateState(copy(merged),legacy(),{idFactory:ids("refresh"),now:"2026-07-18T12:00:00.000Z"});assert.equal(refreshed.rewardTransactions.filter(item=>item.idempotencyKey===key).length,1)
+test("cloud merge deduplicates simultaneous checks and preserves a remote reversal over stale state",()=>{
+ const base=migrated("cloud"),local=copy(base),remote=copy(base),before=playerTotal(base);checkHabit(local,"gym-train",3,"local");checkHabit(remote,"gym-train",3,"remote");
+ const checked=core.mergeCloudState(local,remote),key="habit:gym-train:2026-07-16:reward-v2";assert.equal(checked.rewardTransactions.filter(item=>item.idempotencyKey===key).length,1);assert.equal(playerTotal(checked),before+5);assert.equal(checked.habits.items.find(item=>item.id==="gym-train").values[3],true);
+ const stale=copy(checked),reversed=copy(checked);uncheckHabit(reversed,"gym-train",3,"remote-reverse","2026-07-18T12:00:00.000Z");const merged=core.mergeCloudState(stale,reversed),reward=merged.rewardTransactions.find(item=>item.idempotencyKey===key);
+ assert.equal(reward.status,"reversed");assert.equal(merged.habits.items.find(item=>item.id==="gym-train").values[3],false);assert.equal(playerTotal(merged),before);
+ const refreshed=core.migrateState(copy(merged),legacy(),{idFactory:ids("refresh"),now:"2026-07-18T13:00:00.000Z"});assert.equal(refreshed.rewardTransactions.find(item=>item.idempotencyKey===key).status,"reversed");assert.equal(playerTotal(refreshed),before)
+});
+
+test("habit reversal can level down while preserving unrelated XP",()=>{
+ const state=migrated("level-down",{player:{level:4,xp:98,xpGoal:100}}),baseline=playerTotal(state);const checked=checkHabit(state,"gym-train");assert.equal(state.player.level,5);assert.equal(state.player.xp,3);assert.ok(checked.habitResult.levelUps.some(item=>item.targetId==="player"));
+ const levelUpId=checked.habitResult.levelUps.find(item=>item.targetId==="player").id;uncheckHabit(state,"gym-train");assert.equal(state.player.level,4);assert.equal(state.player.xp,98);assert.equal(state.levelUps.find(item=>item.id===levelUpId).active,false);
+ core.createManualAdjustment(state,{idempotencyKey:"manual:unrelated",sourceId:"unrelated",sourceName:"Unrelated XP",playerXp:30,progression:[]},{idFactory:ids("unrelated")});checkHabit(state,"gym-train",1,"second-day");uncheckHabit(state,"gym-train",1,"second-day-reverse");assert.equal(playerTotal(state),baseline+30)
+});
+
+test("migration preserves configured XP and never retroactively rewards checked history",()=>{
+ const values=core.HABIT_DEFINITIONS.map(()=>Array(7).fill(false));values[0][0]=true;const state=migrated("migration-xp",{habitValues:values}),before=playerTotal(state);assert.equal(state.rewardTransactions.length,0);assert.equal(playerTotal(state),before);
+ state.habits.items.find(item=>item.id==="gym-train").rewards.playerXp=17;state.habits.dailyClearRewards.playerXp=22;const refreshed=core.migrateState(copy(state),legacy(),{idFactory:ids("migration-refresh"),now:"2026-07-18T12:00:00.000Z"});assert.equal(refreshed.habits.items.find(item=>item.id==="gym-train").rewards.playerXp,17);assert.equal(refreshed.habits.dailyClearRewards.playerXp,22);assert.equal(playerTotal(refreshed),before)
+});
+
+test("current-week reversals leave archived weekly history and earned XP untouched",()=>{
+ const state=migrated("archive"),baseline=playerTotal(state);checkHabit(state,"gym-train",0,"archive-old");core.archiveRollovers(state,{today:state.daily.date,week:"2026-07-20"},{idFactory:ids("rollover"),now:"2026-07-20T12:00:00.000Z"});const archived=copy(state.weeklyHistory[0]),earned=playerTotal(state);assert.equal(earned,baseline+5);
+ checkHabit(state,"gym-train",0,"archive-new","2026-07-20T13:00:00.000Z");uncheckHabit(state,"gym-train",0,"archive-new-reverse","2026-07-20T14:00:00.000Z");assert.equal(playerTotal(state),earned);assert.deepEqual(state.weeklyHistory[0],archived)
 });
 
 test("legacy bottleneck arrays migrate to stable active objects",()=>{
@@ -122,10 +145,10 @@ test("AI patches can edit habit rewards and resolve bottlenecks through canonica
  assert.equal(habit.rewards.playerXp,1);assert.equal(bottleneck.status,"resolved");assert.equal(state.rewardTransactions.filter(item=>item.type==="bottleneck-resolution").length,1)
 });
 
-test("AI handoff and readable markdown include engagement history",()=>{
- const state=migrated("handoff"),item=state.bottleneck.items[0];checkHabit(state,"gym-train",4,"handoff-habit");core.resolveBottleneck(state,item.id,"Cleared",{idFactory:ids("handoff-bottle"),now:"2026-07-17T17:00:00.000Z"});
- const handoff=core.buildHandoff(state,{exportId:"engagement-export",exportedAt:"2026-07-17T18:00:00.000Z"}),markdown=core.handoffToMarkdown(handoff);
- assert.equal(handoff.engagement.habitCompletions.length,1);assert.equal(handoff.engagement.bottlenecksRemoved.length,1);assert.match(markdown,/Habit Progression/);assert.match(markdown,/Bottlenecks Removed/)
+test("AI handoff reports habit rewards and reversals with active status",()=>{
+ const state=migrated("handoff"),item=state.bottleneck.items[0];checkHabit(state,"gym-train",4,"handoff-habit");uncheckHabit(state,"gym-train",4,"handoff-reverse","2026-07-17T16:00:00.000Z");core.resolveBottleneck(state,item.id,"Cleared",{idFactory:ids("handoff-bottle"),now:"2026-07-17T17:00:00.000Z"});
+ const handoff=core.buildHandoff(state,{exportId:"engagement-export",exportedAt:"2026-07-17T18:00:00.000Z"}),markdown=core.handoffToMarkdown(handoff),completion=handoff.engagement.habitCompletions[0],reversal=handoff.engagement.habitReversals[0];
+ assert.equal(completion.active,false);assert.equal(completion.playerXpGranted,0);assert.equal(reversal.playerXpRemoved,5);assert.equal(reversal.sourceId,"gym-train");assert.equal(handoff.engagement.bottlenecksRemoved.length,1);assert.match(markdown,/Habit reopened: Gym \/ Train - 5 Player XP removed/);assert.doesNotMatch(markdown,/Habit completed: Gym \/ Train/);assert.match(markdown,/Bottlenecks Removed/)
 });
 
 test("audio catalog is complete and unknown names are silent",async()=>{

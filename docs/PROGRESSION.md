@@ -1,10 +1,10 @@
 # Progression, Engagement, and Grind Transactions
 
-## Schema v6
+## Schema v7
 
-App version 1.5.0 uses state schema 6. Migration is idempotent and runs for local storage, imported saves, cloud hydration, realtime snapshots, and conflict snapshots. It preserves personalized values, mission history, checked habits, custom habits, and legacy bottleneck text.
+App version 1.6.0 uses state schema 7. Migration is idempotent and runs for local storage, imported saves, cloud hydration, realtime snapshots, and conflict snapshots. It preserves personalized values, mission history, checked habits, custom habits, legitimate reward transactions, and legacy bottleneck text.
 
-Schema 6 retains all earlier behavior and adds:
+Schema 7 retains all earlier behavior and adds reversible habit and Daily System Clear reward lifecycles. Schema 6 introduced:
 
 - `state.engagement.version`
 - Seven standard habits with stable IDs, structured rewards, and `rewardVersion`
@@ -20,7 +20,7 @@ Schema 6 retains all earlier behavior and adds:
 - Currency, title, and cosmetic fields preserved in canonical progression transaction rewards
 - Gym-to-contract and Gym-to-habit deduplication, including the five-protocol cycle reward
 
-Checked legacy habit cells receive a claim marker without a fabricated XP transaction. This prevents retroactive rewards and uncheck/recheck farming while preserving visible history.
+Checked legacy habit cells receive a version 1 claim marker without a fabricated XP transaction. This prevents retroactive rewards while allowing a later real unchecked-to-checked transition to use the version 2 lifecycle.
 
 ## XP model
 
@@ -32,21 +32,22 @@ The player track is `state.player`. Core-stat, attribute, and skill tracks are i
 
 | ID | Label | Structured reward |
 | --- | --- | --- |
-| `gym-train` | Gym / Train | +5 Fitness, +2 Energy |
-| `steps-8k` | 8k Steps | +3 Energy, +3 Fitness |
-| `sleep-seven-hours` | Sleep 7+ Hours | +5 Energy, +3 Capacity |
-| `main-quest-work` | Main Quest Work | +5 Momentum, +3 Alignment |
-| `no-social-media-am` | No Social Media AM | +5 Clarity, +2 Alignment |
-| `content-made` | Content Made | +5 Music Creation, +3 Momentum |
-| `content-released` | Content Released | +6 Leverage, +4 Music Creation, +2 Momentum |
+| `gym-train` | Gym / Train | +5 Player, +5 Fitness, +2 Energy |
+| `steps-8k` | 8k Steps | +5 Player, +3 Energy, +3 Fitness |
+| `sleep-seven-hours` | Sleep 7+ Hours | +5 Player, +5 Energy, +3 Capacity |
+| `main-quest-work` | Main Quest Work | +5 Player, +5 Momentum, +3 Alignment |
+| `no-social-media-am` | No Social Media AM | +5 Player, +5 Clarity, +2 Alignment |
+| `content-made` | Content Made | +5 Player, +5 Music Creation, +3 Momentum |
+| `content-released` | Content Released | +5 Player, +6 Leverage, +4 Music Creation, +2 Momentum |
 
 Custom habits remain after the standard seven and retain their values and structured rewards. A first unchecked-to-checked transition uses:
 
 ```text
-habit:<habit-id>:<YYYY-MM-DD>:reward-v<reward-version>
+habit:<habit-id>:<YYYY-MM-DD>:reward-v2
+habit:<habit-id>:<YYYY-MM-DD>:reversal-v2
 ```
 
-The date comes from `habits.week` plus the selected column, not the current clock. A transaction and a `rewardClaims` marker make the claim durable. Refresh, import, replay, uncheck/recheck, and duplicate cloud writes cannot reapply it.
+The date comes from `habits.week` plus the selected column, not the current clock. Checking activates one canonical reward. Unchecking records a reversal and rebuilds progression without that reward, which can lower levels but cannot affect unrelated XP. Rechecking reactivates the original claim without stacking. Lifecycle revisions make refresh, import, replay, and duplicate cloud writes deterministic.
 
 ## Habit pitch language
 
@@ -62,11 +63,11 @@ The completed count for that date selects the note, regardless of which habit wa
 7: 783.99 Hz
 ```
 
-This is an ascending E-flat language. Out-of-order completion remains consistent because the algorithm counts completed standard habits after the transition. A numbered custom file wins first; otherwise `habit-step.wav` is pitch-shifted; otherwise synthesis uses the exact frequency. Unchecking uses `toggleOff` and never reverses a claim.
+This is an ascending E-flat language. Out-of-order completion remains consistent because the algorithm counts completed standard habits after the transition. A numbered custom file wins first; otherwise `habit-step.wav` is pitch-shifted; otherwise synthesis uses the exact frequency. Unchecking uses `toggleOff`, records a reversal, and shows only the compact bonus-removed feedback.
 
 ## Daily clear
 
-Completing all seven standard habits for one date creates `habit-day-clear:<YYYY-MM-DD>:reward-v1`. The claim grants +10 Player XP, +5 Momentum XP, and +5 Alignment XP. It is separate from the seventh habit transaction and is presented through the shared queue. Reopening and rechecking cannot reclaim it.
+Completing all seven standard habits for one date creates `habit-day:<YYYY-MM-DD>:reward-v2`. The configured default grants +10 Player XP, +5 Momentum XP, and +5 Alignment XP. Unchecking any habit applies `habit-day:<YYYY-MM-DD>:reversal-v2`; rechecking the missing habit reinstates the original reward once.
 
 ## Bottleneck model
 
@@ -151,4 +152,4 @@ npm.cmd test
 npm.cmd run check
 ```
 
-The suites cover schema 6 migration, Grind economy safety, custom habit preservation, exact rewards, daily clears, E-flat steps, cloud deduplication, bottleneck resolution/replay/immutability, AI compatibility, audio tiers/fallbacks, queue ordering, mission progression, production output, and legacy behavior.
+The suites cover schema 7 migration, Grind economy safety, custom habit preservation, exact rewards, daily clears, E-flat steps, cloud deduplication, bottleneck resolution/replay/immutability, AI compatibility, audio tiers/fallbacks, queue ordering, mission progression, production output, and legacy behavior.

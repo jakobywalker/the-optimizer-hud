@@ -4,13 +4,13 @@ The Optimizer HUD keeps one versioned state object in local storage and, when si
 
 ## State schema
 
-Schema version 6 uses this metadata:
+Schema version 7 uses this metadata:
 
 ```json
 {
   "meta": {
-    "schemaVersion": 6,
-    "appVersion": "1.5.0",
+    "schemaVersion": 7,
+    "appVersion": "1.6.0",
     "createdAt": "2026-07-15T12:00:00.000Z",
     "updatedAt": "2026-07-15T12:00:00.000Z",
     "lastHandoffAt": null,
@@ -155,8 +155,8 @@ A progression update must be explicit and additive. An AI must not set `level` o
 Each handoff has a top-level `engagement` summary and the same summary under `summary.engagement`. It includes:
 
 - Standard habit IDs and structured reward definitions
-- Habit reward transactions since the previous handoff, including `sourceDate`
-- Daily-system clear transactions
+- Habit completion and reversal transactions, including `sourceDate`, active status, Player XP granted, and Player XP removed
+- Daily System Clear applications and reversals
 - Bottleneck resolution transactions and resolved bottleneck snapshots
 - Resolution notes, timestamps, reward summaries, level-ups, and achievement links
 - `rewardClaims` in relevant history for import/cloud claim auditing
@@ -188,7 +188,7 @@ Example resolution operation:
 }
 ```
 
-Habit and bottleneck completions use the same canonical transaction engine as direct UI actions. AI application does not play sounds, sparks, or cinematics. Resolved bottleneck history and already-applied transactions cannot be edited or reclaimed.
+Habit completion and reopening use the same reversible canonical transaction engine as direct UI actions. Reopened rewards remain auditable but are not reported as active accomplishments. AI application and cloud hydration do not play sounds, sparks, or cinematics. Resolved bottleneck history and unrelated progression remain immutable.
 ## Instructions for another AI
 
 1. Read the handoff JSON, treating `currentState` as authoritative.

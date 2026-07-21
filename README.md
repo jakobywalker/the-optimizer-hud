@@ -49,7 +49,7 @@ See [docs/GYM-MODE.md](docs/GYM-MODE.md) for protocol behavior, state, scoring, 
 
 Every progression track has a stable ID, name, type, level, current XP, and `xpRequired: 100`. Reaching 100 XP increments the level, subtracts 100 XP, and carries all overflow. A single reward can grant multiple levels.
 
-The player track lives at `state.player`. Category tracks live in `state.progression.tracks`. `state.progression.baseline` is the immutable migration/rebuild anchor used to replay merged transactions safely. Existing percentage values seed Level 1 XP the first time schema 6 migrates a save.
+The player track lives at `state.player`. Category tracks live in `state.progression.tracks`. `state.progression.baseline` is the immutable migration/rebuild anchor used to replay merged transactions safely. Existing percentage values seed Level 1 XP the first time the progression schema migrates a save.
 
 Mission rewards are structured:
 
@@ -93,11 +93,11 @@ The sequence:
 
 ## Habits and daily clear
 
-Schema 6 retains seven stable standard habits while preserving custom habits and all checked history: Gym / Train, 8k Steps, Sleep 7+ Hours, Main Quest Work, No Social Media AM, Content Made, and Content Released. Each first completion for a calendar date grants its configured structured progression reward once.
+Schema 7 retains seven stable standard habits while preserving custom habits and all checked history: Gym / Train, 8k Steps, Sleep 7+ Hours, Main Quest Work, No Social Media AM, Content Made, and Content Released. Each new completion grants a configurable default of +5 Player XP plus its skill/core rewards. Unchecking reverses exactly that date's reward, and rechecking reinstates the same canonical claim without stacking.
 
 Habit sound pitch comes from the completed count for that date, not row order. The E-flat frequencies are `311.13`, `349.23`, `392`, `466.16`, `523.25`, `622.25`, and `783.99` Hz. This stays ascending when habits are completed out of order.
 
-Completing all seven grants a separate claim-once daily-system clear: +10 Player XP, +5 Momentum XP, and +5 Alignment XP. Direct local completions show a small spark and XP label; reduced-motion mode uses a glow. Import, AI, and cloud events do not create local celebration feedback.
+Completing all seven grants a separate Daily System Clear: +10 Player XP, +5 Momentum XP, and +5 Alignment XP by default. Breaking the day reverses that bonus; restoring the final habit reinstates it once. Direct local transitions show a small XP label; reduced-motion mode uses a glow. Import, AI, and cloud events do not create local celebration feedback.
 
 ## Bottleneck resolution
 
@@ -128,7 +128,7 @@ See [docs/AI-WORKFLOW.md](docs/AI-WORKFLOW.md) and the privacy-safe examples in 
 
 The first device to sign into an empty account uploads its current local HUD. Later devices on the same account download that shared state. Successful changes are stored in the existing Postgres JSONB row and broadcast to other active sessions.
 
-On revision conflicts, snapshots are migrated before merge. Append-only histories are deduplicated by stable IDs. Reward transactions are additionally deduplicated by idempotency key, then progression is rebuilt from the baseline and canonical applied transaction list. Level-ups and achievements tied to discarded duplicate claims are removed. Different mission, habit-date, daily-clear, and bottleneck rewards are retained. Habit claim markers are unioned by idempotency key, and a canonical bottleneck transaction forces resolved history.
+On revision conflicts, snapshots are migrated before merge. Append-only histories are deduplicated by stable IDs. Reward transactions are additionally deduplicated by idempotency key and lifecycle revision, then progression is rebuilt from the baseline and canonical active reward list. Reversed reward and level-up audit records remain in history but are not active progression. Different mission, habit-date, daily-clear, and bottleneck rewards are retained. Habit checkbox state is reconciled from the same canonical reward lifecycle, and a canonical bottleneck transaction forces resolved history.
 
 Mission completion metadata preserves the canonical transaction and earliest valid claim timestamp. Other editable scalar fields and non-history collections still use the existing newest-snapshot or optimistic local-write behavior, so simultaneous edits to the same ordinary field remain last-write-wins.
 
@@ -137,7 +137,7 @@ Apply `supabase/schema.sql`, then configure Vercel with:
 - `SUPABASE_URL`
 - `SUPABASE_PUBLISHABLE_KEY`
 
-No Supabase table or environment-variable change is required for schema 6 because Grind data remains inside the existing user-scoped JSONB state.
+No Supabase table or environment-variable change is required for schema 7 because the reversible transaction fields remain inside the existing user-scoped JSONB state.
 
 ## Migration and import safety
 
