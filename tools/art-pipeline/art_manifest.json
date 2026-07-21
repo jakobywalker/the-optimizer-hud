@@ -146,7 +146,7 @@
       "references": [
         "references/optimizer-visual-direction-board.png"
       ],
-      "prompt": "Create one centered Mastery Token icon. Rare engraved dark-metal and gold artifact associated with repeated excellence, highly readable silhouette, no letters or numbers, isolated on a pure white background with generous padding."
+      "prompt": "Create one centered Mastery Token artifact associated with repeated excellence. Build it from three asymmetrical interlocking faceted plates in engraved dark metal and gold, arranged as a dimensional knot rather than a coin or seal. Use no central glyph, rune, crest, wreath, letter-like stroke, number, initial, or monogram. The geometry must not resemble any alphabetic character from any viewing direction. Give it a highly readable silhouette and isolate it on a pure white background with generous padding."
     },
     {
       "id": "currency-unlock-key",
@@ -168,7 +168,7 @@
       "references": [
         "references/optimizer-visual-direction-board.png"
       ],
-      "prompt": "Create one centered Revenue Credit icon. Financially grounded precision artifact using gold and green, serious institutional design, not a crypto coin and no dollar symbol, bold readable silhouette, isolated on a pure white background with generous padding."
+      "prompt": "Create one centered Revenue Credit icon. Financially grounded precision artifact using gold and green, serious institutional design, not a crypto coin, with no letters, initials, monograms, numbers, or currency symbols. Use only abstract mechanical geometry, with a bold readable silhouette isolated on a pure white background with generous padding."
     },
     {
       "id": "achievement-normal",
@@ -212,7 +212,7 @@
       "references": [
         "references/optimizer-visual-direction-board.png"
       ],
-      "prompt": "Create a reusable locked real-world unlock card artwork. A premium future object is hidden by shadow and holographic obstruction inside a graphite display chamber. No specific branded item, no text, clear dark area for HTML overlay."
+      "prompt": "Create a reusable locked real-world unlock card artwork. The hidden relic is a compact cylindrical voice-capsule artifact mounted upright on a slim pedestal inside a graphite display chamber, matching the silhouette and proportions of the revealed unlock artwork. Conceal it with shadow and restrained holographic obstruction, but keep the object silhouette recognizable. Do not depict a person or humanoid. No brand, no text, and a clear dark area for HTML overlay."
     },
     {
       "id": "unlock-card-unlocked",
