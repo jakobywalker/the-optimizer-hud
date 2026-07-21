@@ -6,6 +6,8 @@ if (!existsSync(htmlPath)) {
 }
 
 const html = readFileSync(htmlPath, "utf8");
+const artworkSource = readFileSync("artwork.js", "utf8");
+const progressionUi = readFileSync("progression-ui.js", "utf8");
 const grindUi = readFileSync("grind-ui.js", "utf8");
 const grindEngine = readFileSync("grind-engine.js", "utf8");
 if (!/^<!doctype html>/i.test(html.trimStart()) || !/<\/html>\s*$/i.test(html)) {
@@ -16,7 +18,7 @@ if (!/\.quick-actions\{[^}]*clip-path:none;[^}]*overflow:visible/.test(html)) {
   throw new Error("DATA menu container must remain unclipped");
 }
 
-const runtimeScripts = ["progression-engine.js", "audio-manager.js", "engagement-engine.js", "gym-engine.js", "grind-engine.js", "hud-core.js", "ai-workflow.js", "progression-ui.js", "engagement-ui.js", "gym-ui.js", "grind-ui.js"];
+const runtimeScripts = ["progression-engine.js", "audio-manager.js", "engagement-engine.js", "gym-engine.js", "grind-engine.js", "hud-core.js", "ai-workflow.js", "artwork.js", "progression-ui.js", "engagement-ui.js", "gym-ui.js", "grind-ui.js"];
 let previousScriptIndex = -1;
 for (const runtimeScript of runtimeScripts) {
   const marker = `src="${runtimeScript}"`;
@@ -24,6 +26,20 @@ for (const runtimeScript of runtimeScripts) {
   if (index < 0) throw new Error(`Missing runtime script: ${runtimeScript}`);
   if (index <= previousScriptIndex) throw new Error(`Runtime script order is invalid at ${runtimeScript}`);
   previousScriptIndex = index;
+}
+Function(artworkSource)();
+const artwork = globalThis.OptimizerArtwork;
+if (!artwork || artwork.all.length !== 20 || new Set(artwork.all).size !== 20) {
+  throw new Error("Artwork registry must expose exactly 20 unique production assets");
+}
+for (const [group, expected] of Object.entries({ backgrounds: 2, campaign: 3, grinds: 6, currencies: 4, achievements: 3, unlocks: 2 })) {
+  if (Object.keys(artwork.paths[group]).length !== expected) throw new Error(`Artwork group ${group} must expose ${expected} assets`);
+}
+for (const assetPath of artwork.all) {
+  if (!existsSync(assetPath)) throw new Error(`Missing production artwork: ${assetPath}`);
+}
+if (!grindUi.includes("artwork.paths.backgrounds.hud") || !grindUi.includes("artwork.paths.backgrounds.grinds") || !grindUi.includes("artwork.paths.campaign.card") || !grindUi.includes("artwork.paths.campaign.completion") || !grindUi.includes("artwork.currencyFor") || !grindUi.includes("artwork.unlockFor") || !grindUi.includes("applyViewArtwork") || !progressionUi.includes("artwork.achievementFor")) {
+  throw new Error("Production artwork must remain wired into environments, completions, and achievements");
 }
 if (!html.includes("core.completeMission(state,m.id") || !html.includes("OptimizerProgressionUI?.enqueue")) {
   throw new Error("Mission completion must persist rewards before presentation");

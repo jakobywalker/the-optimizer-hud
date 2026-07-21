@@ -18,6 +18,7 @@ await Promise.all([
   copyFile("sync.js", "dist/sync.js"),
   copyFile("hud-core.js", "dist/hud-core.js"),
   copyFile("ai-workflow.js", "dist/ai-workflow.js"),
+  copyFile("artwork.js", "dist/artwork.js"),
   copyFile("progression-engine.js", "dist/progression-engine.js"),
   copyFile("audio-manager.js", "dist/audio-manager.js"),
   copyFile("engagement-engine.js", "dist/engagement-engine.js"),
