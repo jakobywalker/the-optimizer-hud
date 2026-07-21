@@ -60,8 +60,9 @@ const hudRenderer = sliceBetween(grindUi, "function renderBoard()", "function na
 if (!hudRenderer.includes('board.querySelector("#todayActions")') || !hudRenderer.includes("slice(0,6)") || !hudRenderer.includes("Open Grinds")) {
   throw new Error("HUD must prioritize the campaign, bounded Today's Actions, and one Grind launcher");
 }
-if (!grindUi.includes("hud-command-strip") || !grindUi.includes("hud-system-dashboard") || !grindUi.includes("hud-signal-line") || !grindUi.includes('id="dashboardSlot"')) {
-  throw new Error("HUD must retain the full command-center hierarchy");
+const hudShell = sliceBetween(grindUi, "function buildHudShell()", "function renderBoard()");
+if (hudShell.includes("hud-command-strip") || hudShell.includes("hud-dashboard-label") || !grindUi.includes("hud-system-dashboard") || !hudShell.includes('id="dashboardSlot"')) {
+  throw new Error("HUD must remove both full-width divider bars while retaining the complete system dashboard");
 }
 const requiredSystemIds = ["characterStats", "skills", "dailySystem", "buffs", "activeDebuffs", "debuffList", "resources", "habitTracker", "baseStatus", "partySlots", "todayLeverage", "missions"];
 for (const id of requiredSystemIds) {
@@ -96,6 +97,9 @@ if (!grindUi.includes("--font-body:16px") || !grindUi.includes("--font-label:13p
   throw new Error("Readable typography, target sizing, and full-width ultrawide use are required");
 }
 const mobilePanels = sliceBetween(html, "function initMobilePanels()", "function syncMobileMode");
+if (!grindUi.includes("One-viewport desktop command center") || !grindUi.includes("grid-template-columns:repeat(6,minmax(0,1fr))!important") || !grindUi.includes("height:100vh!important") || !grindUi.includes(".today-list{min-height:0;display:grid;grid-template-columns:repeat(2")) {
+  throw new Error("Desktop HUD must use the viewport-fitted campaign and two-row ultrawide systems matrix");
+}
 if (!mobilePanels.includes("optimizerPanel:") || !mobilePanels.includes("mobile-collapsed") || /saveState|grantReward|createRewardTransaction/.test(mobilePanels)) {
   throw new Error("Mobile system collapse must remain persistent and progression-free");
 }
